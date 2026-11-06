@@ -1,0 +1,140 @@
+<div id="add-pack" class="fixed inset-0 z-40 flex items-center justify-center overflow-hidden bg-ink/45 px-5 py-6">
+  <div role="dialog" aria-modal="true" aria-labelledby="add-pack-title" class="max-h-full w-full max-w-[640px] overflow-y-auto overscroll-contain rounded-[20px] bg-card p-6">
+    <div class="flex flex-col gap-3">
+      <div class="flex items-center justify-between">
+        <h2 id="add-pack-title" class="text-2xl font-semibold leading-none">Add to pack</h2>
+        <a href="{{ selected_url }}" class="text-2xl leading-none text-muted" aria-label="Close">×</a>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <div class="flex items-center justify-between gap-3">
+          <p class="text-[22px] font-semibold leading-none">{{ word }}</p>
+          <p class="text-[22px] font-semibold leading-none {% if detail.meaning_bn %}font-bn{% endif %}">{{ detail.meaning }}</p>
+        </div>
+        <p class="flex gap-4 text-[13px] font-semibold">
+          {% for item in detail.pos %}<span>{{ item }}</span>{% endfor %}
+        </p>
+      </div>
+
+      <div class="flex flex-col gap-3.5">
+        <div class="flex flex-col gap-2">
+          <p class="text-[13px] font-semibold text-muted">Synonyms</p>
+          <ul class="flex flex-wrap gap-x-3.5 gap-y-2">
+            {% for item in detail.synonyms %}
+              <li>
+                <button type="button" data-check class="inline-flex items-center gap-3 text-[13px] font-medium" aria-pressed="true">
+                  <span data-box class="grid size-[22px] place-items-center rounded-md bg-teal text-xs font-bold text-white" aria-hidden="true">✓</span>
+                  {{ item }}
+                </button>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="flex flex-col gap-2">
+          <p class="text-[13px] font-semibold text-muted">Antonyms</p>
+          <ul class="flex flex-wrap gap-x-3.5 gap-y-2">
+            {% for item in detail.antonyms %}
+              <li>
+                <button type="button" data-check class="inline-flex items-center gap-3 text-[13px] font-medium" aria-pressed="true">
+                  <span data-box class="grid size-[22px] place-items-center rounded-md bg-teal text-xs font-bold text-white" aria-hidden="true">✓</span>
+                  {{ item }}
+                </button>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+
+      <p class="text-[13px] font-semibold text-muted">Examples</p>
+      {% for example in detail.examples %}
+        <button type="button" data-check class="flex items-start gap-3 text-left text-[15px] font-medium" aria-pressed="true">
+          <span data-box class="grid size-[22px] shrink-0 place-items-center rounded-md bg-teal text-xs font-bold text-white" aria-hidden="true">✓</span>
+          <span>{{ example }}</span>
+        </button>
+      {% endfor %}
+
+      <div class="flex flex-col gap-2">
+        <div class="flex items-center justify-between">
+          <p class="text-[13px] font-semibold text-muted">Select word packs</p>
+          <button type="button" class="inline-flex h-7 items-center gap-1.5 rounded-lg border border-teal bg-white px-2.5 text-[13px] font-semibold text-teal">+ New pack</button>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          {% for pack in pack_choices %}
+            <button type="button" data-pack class="inline-flex h-7 items-center gap-2 rounded-lg px-2.5 text-[13px] font-semibold {% if pack.selected %}bg-teal text-white{% else %}border border-line bg-white text-ink{% endif %}" aria-pressed="{% if pack.selected %}true{% else %}false{% endif %}">
+              <span>{{ pack.name }}</span>
+              <span class="{% if pack.selected %}text-white{% else %}text-teal{% endif %}">{{ pack.count }}</span>
+            </button>
+          {% endfor %}
+          <span class="inline-flex h-7 items-center gap-0.5 rounded-lg border border-teal bg-white px-2.5 text-[13px] font-semibold">
+            cedar lantern
+            <span class="ml-0.5 inline-block h-3.5 w-0.5 bg-teal" aria-hidden="true"></span>
+          </span>
+        </div>
+      </div>
+
+      <a href="{{ added_url }}" class="grid h-12 place-items-center rounded-xl bg-teal text-base font-semibold text-white">Save card</a>
+    </div>
+  </div>
+</div>
+<script>
+  (function () {
+    const dialog = document.getElementById("add-pack");
+    const panel = dialog.querySelector("[role=dialog]");
+    const scrollY = window.scrollY;
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+    document.body.style.position = "fixed";
+    document.body.style.top = "-" + scrollY + "px";
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+    document.body.style.width = "100%";
+    function blockPageScroll(event) {
+      if (panel.contains(event.target) && panel.scrollHeight > panel.clientHeight + 1) return;
+      event.preventDefault();
+    }
+    window.addEventListener("wheel", blockPageScroll, { passive: false });
+    window.addEventListener("touchmove", blockPageScroll, { passive: false });
+    window.addEventListener("keydown", function (event) {
+      const keys = [" ", "PageUp", "PageDown", "ArrowUp", "ArrowDown", "Home", "End"];
+      const tag = event.target.tagName;
+      if ((tag === "BUTTON" || tag === "A" || tag === "INPUT") && event.key === " ") return;
+      if (keys.indexOf(event.key) !== -1) event.preventDefault();
+    });
+    dialog.addEventListener("click", function (event) {
+      if (event.target === dialog) window.location = "{{ selected_url|escapejs }}";
+    });
+    panel.addEventListener("click", function (event) {
+      event.stopPropagation();
+    });
+    function paint(button, on) {
+      const box = button.querySelector("[data-box]");
+      button.setAttribute("aria-pressed", on ? "true" : "false");
+      box.classList.toggle("bg-teal", on);
+      box.classList.toggle("text-white", on);
+      box.classList.toggle("border", !on);
+      box.classList.toggle("border-line", !on);
+      box.classList.toggle("bg-white", !on);
+      box.classList.toggle("text-transparent", !on);
+    }
+    dialog.querySelectorAll("[data-check]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        paint(button, button.getAttribute("aria-pressed") !== "true");
+      });
+    });
+    dialog.querySelectorAll("[data-pack]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        const on = button.getAttribute("aria-pressed") !== "true";
+        button.setAttribute("aria-pressed", on ? "true" : "false");
+        button.classList.toggle("bg-teal", on);
+        button.classList.toggle("text-white", on);
+        button.classList.toggle("border", !on);
+        button.classList.toggle("border-line", !on);
+        button.classList.toggle("bg-white", !on);
+        button.classList.toggle("text-ink", !on);
+        const count = button.querySelector("span:last-child");
+        count.classList.toggle("text-white", on);
+        count.classList.toggle("text-teal", !on);
+      });
+    });
+  })();
+</script>
