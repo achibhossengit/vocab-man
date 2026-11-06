@@ -14,6 +14,13 @@
 </head>
 <body class="bg-paper font-sans text-ink antialiased">
   {% include "partials/header.html" %}
+  {% if messages %}
+    <div class="mx-auto flex w-full max-w-[720px] flex-col gap-2 px-5 pt-4 sm:px-0">
+      {% for message in messages %}
+        <p class="rounded-xl border border-line bg-card px-4 py-3 text-sm {% if 'error' in message.tags %}text-clay{% endif %}" role="status">{{ message }}</p>
+      {% endfor %}
+    </div>
+  {% endif %}
   <main>
     {% block content %}{% endblock %}
   </main>

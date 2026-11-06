@@ -1,0 +1,18 @@
+{% extends "account/entrance.html" %}
+
+{% block title %}Confirm email — vocab-man{% endblock %}
+
+{% block card %}
+  <h1 class="text-[22px] font-semibold">Confirm email</h1>
+  {% if confirmation and can_confirm %}
+    <p class="text-[15px] leading-6 text-muted">Confirm {{ email }} for this account.</p>
+    <form method="post" action="{% url 'account_confirm_email' confirmation.key %}">
+      {% csrf_token %}
+      {{ redirect_field }}
+      <button type="submit" class="h-11 w-full rounded-xl bg-teal text-sm font-semibold text-white">Confirm</button>
+    </form>
+  {% else %}
+    <p class="text-[15px] leading-6 text-muted">This confirmation link is invalid or already used.</p>
+    <a href="{% url 'account_signup' %}" class="inline-flex h-11 items-center justify-center rounded-xl bg-teal text-sm font-semibold text-white">Sign up again</a>
+  {% endif %}
+{% endblock %}

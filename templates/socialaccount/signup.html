@@ -1,0 +1,27 @@
+{% extends "account/entrance.html" %}
+
+{% block title %}Finish sign up — vocab-man{% endblock %}
+
+{% block card %}
+  <form method="post" action="{% url 'socialaccount_signup' %}" class="auth-fields flex flex-col gap-3.5">
+    {% csrf_token %}
+    {{ redirect_field }}
+    <h1 class="text-[22px] font-semibold">Finish sign up</h1>
+    <p class="text-[15px] leading-6 text-muted">{{ account.get_provider.name }} did not send everything this account needs.</p>
+    {% if form.non_field_errors %}
+      <p class="text-[13px] text-clay" role="alert">{{ form.non_field_errors|striptags }}</p>
+    {% endif %}
+    {% for field in form %}
+      {% if field.is_hidden %}
+        {{ field }}
+      {% else %}
+        <label class="flex flex-col gap-2">
+          <span class="text-[13px] font-semibold">{{ field.label }}</span>
+          {{ field }}
+          {% if field.errors %}<span class="text-[13px] text-clay">{{ field.errors|striptags }}</span>{% endif %}
+        </label>
+      {% endif %}
+    {% endfor %}
+    <button type="submit" class="h-11 rounded-xl bg-teal text-sm font-semibold text-white">Sign up</button>
+  </form>
+{% endblock %}

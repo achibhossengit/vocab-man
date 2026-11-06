@@ -1,0 +1,9 @@
+{% extends "account/entrance.html" %}
+
+{% block title %}Account inactive — vocab-man{% endblock %}
+
+{% block card %}
+  <h1 class="text-[22px] font-semibold">Account inactive</h1>
+  <p class="text-[15px] leading-6 text-muted">This account is turned off. Confirm the email, or use another address.</p>
+  <a href="{% url 'account_login' %}" class="inline-flex h-11 items-center justify-center rounded-xl border border-line bg-white text-sm font-semibold">Back to log in</a>
+{% endblock %}

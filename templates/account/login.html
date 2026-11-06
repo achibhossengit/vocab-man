@@ -1,0 +1,35 @@
+{% extends "account/entrance.html" %}
+
+{% block title %}Log in — vocab-man{% endblock %}
+
+{% block card %}
+  <form method="post" action="{% url 'account_login' %}" class="flex flex-col gap-3.5">
+    {% csrf_token %}
+    {{ redirect_field }}
+    <h1 class="text-[22px] font-semibold">Log in</h1>
+    {% if form.non_field_errors %}
+      <p class="text-[13px] text-clay" role="alert">{{ form.non_field_errors|striptags }}</p>
+    {% endif %}
+
+    <label class="flex flex-col gap-2">
+      <span class="text-[13px] font-semibold">Email</span>
+      <input type="email" name="login" value="{{ form.login.value|default_if_none:'' }}" placeholder="you@email.com" autocomplete="username" required class="h-12 rounded-xl border bg-white px-3.5 text-[15px] placeholder:text-muted focus:border-teal focus:outline-none {% if form.login.errors %}border-clay{% else %}border-line{% endif %}">
+      {% if form.login.errors %}<span class="text-[13px] text-clay">{{ form.login.errors|striptags }}</span>{% endif %}
+    </label>
+
+    <label class="flex flex-col gap-2">
+      <span class="flex items-center justify-between text-[13px] font-semibold">
+        Password
+        <a href="{% url 'account_reset_password' %}" class="font-semibold text-teal">Forgot password?</a>
+      </span>
+      <input type="password" name="password" placeholder="Password" autocomplete="current-password" required class="h-12 rounded-xl border bg-white px-3.5 text-[15px] placeholder:text-muted focus:border-teal focus:outline-none {% if form.password.errors %}border-clay{% else %}border-line{% endif %}">
+      {% if form.password.errors %}<span class="text-[13px] text-clay">{{ form.password.errors|striptags }}</span>{% endif %}
+    </label>
+
+    <button type="submit" class="h-11 rounded-xl bg-teal text-sm font-semibold text-white">Log in</button>
+  </form>
+
+  <p class="text-center text-[13px] font-medium text-muted">or</p>
+  {% include "partials/google_button.html" %}
+  <p class="text-center text-[13px] text-muted">Need an account? <a href="{% url 'account_signup' %}" class="font-semibold text-teal">Sign up</a></p>
+{% endblock %}

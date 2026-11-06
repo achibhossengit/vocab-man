@@ -1,0 +1,9 @@
+{% extends "account/entrance.html" %}
+
+{% block title %}Sign-in cancelled — vocab-man{% endblock %}
+
+{% block card %}
+  <h1 class="text-[22px] font-semibold">Sign-in cancelled</h1>
+  <p class="text-[15px] leading-6 text-muted">Google sign-in was cancelled before it finished.</p>
+  <a href="{% url 'account_login' %}" class="inline-flex h-11 items-center justify-center rounded-xl bg-teal text-sm font-semibold text-white">Back to log in</a>
+{% endblock %}

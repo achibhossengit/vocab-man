@@ -14,3 +14,18 @@
   --font-sans: "Inter Tight", ui-sans-serif, system-ui, sans-serif;
   --font-bn: "Noto Sans Bengali", sans-serif;
 }
+
+.auth-fields input:not([type="hidden"]) {
+  height: 3rem;
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-line);
+  background: #fff;
+  padding-inline: 0.875rem;
+  font-size: 15px;
+}
+
+.auth-fields input:not([type="hidden"]):focus {
+  border-color: var(--color-teal);
+  outline: none;
+}

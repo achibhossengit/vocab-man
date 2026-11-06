@@ -1,0 +1,18 @@
+{% extends "account/entrance.html" %}
+
+{% block title %}Continue with {{ provider.name }} — vocab-man{% endblock %}
+
+{% block card %}
+  <h1 class="text-[22px] font-semibold">Continue with {{ provider.name }}</h1>
+  <p class="text-[15px] leading-6 text-muted">
+    {% if process == "connect" %}
+      Connect this {{ provider.name }} account to vocab-man.
+    {% else %}
+      Sign in to vocab-man with {{ provider.name }}.
+    {% endif %}
+  </p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="h-11 w-full rounded-xl bg-teal text-sm font-semibold text-white">Continue</button>
+  </form>
+{% endblock %}

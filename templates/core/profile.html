@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Profile — vocab-man{% endblock %}
+
+{% block content %}
+  <div class="mx-auto flex w-full max-w-[720px] justify-center px-5 py-[72px] sm:px-0">
+    <section class="flex w-full max-w-[440px] flex-col items-center gap-3.5 rounded-[20px] border border-line bg-card p-7 text-center">
+      <span class="grid size-[72px] place-items-center rounded-full bg-teal text-white" aria-hidden="true">
+        <svg viewBox="0 0 24 24" class="size-6" fill="currentColor">
+          <circle cx="12" cy="8" r="3.2"></circle>
+          <path d="M6.5 18.5c.8-2.8 2.9-4.2 5.5-4.2s4.7 1.4 5.5 4.2"></path>
+        </svg>
+      </span>
+      <div>
+        <h1 class="text-xl font-semibold">{{ name|default:user.email }}</h1>
+        {% if name %}<p class="mt-1 text-sm text-muted">{{ user.email }}</p>{% endif %}
+      </div>
+      <a href="{% url 'account_change_password' %}" class="inline-flex h-11 w-full items-center justify-center rounded-xl border border-line bg-white text-sm font-semibold">Change password</a>
+      <form method="post" action="{% url 'account_logout' %}" class="w-full">
+        {% csrf_token %}
+        <button type="submit" class="h-11 w-full rounded-xl bg-clay text-sm font-semibold text-white">Log out</button>
+      </form>
+    </section>
+  </div>
+{% endblock %}

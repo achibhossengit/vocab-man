@@ -1,0 +1,13 @@
+{% extends "account/entrance.html" %}
+
+{% block title %}Log out — vocab-man{% endblock %}
+
+{% block card %}
+  <h1 class="text-[22px] font-semibold">Log out</h1>
+  <p class="text-[15px] leading-6 text-muted">Leave this account on this browser?</p>
+  <form method="post" action="{% url 'account_logout' %}">
+    {% csrf_token %}
+    {{ redirect_field }}
+    <button type="submit" class="h-11 w-full rounded-xl bg-clay text-sm font-semibold text-white">Log out</button>
+  </form>
+{% endblock %}

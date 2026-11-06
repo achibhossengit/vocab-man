@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="mx-auto flex w-full max-w-[720px] justify-center px-5 py-[72px] sm:px-0">
+    <div class="flex w-full max-w-[440px] flex-col gap-3.5 rounded-[20px] border border-line bg-card p-7">
+      {% block card %}{% endblock %}
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% extends "account/entrance.html" %}
+
+{% block title %}Google sign-in failed — vocab-man{% endblock %}
+
+{% block card %}
+  <h1 class="text-[22px] font-semibold">Google sign-in failed</h1>
+  <p class="text-[15px] leading-6 text-muted">The Google account could not be used. Try again, or log in with email.</p>
+  <a href="{% url 'account_login' %}" class="inline-flex h-11 items-center justify-center rounded-xl bg-teal text-sm font-semibold text-white">Back to log in</a>
+{% endblock %}

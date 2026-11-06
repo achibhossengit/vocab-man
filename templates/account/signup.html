@@ -1,0 +1,38 @@
+{% extends "account/entrance.html" %}
+
+{% block title %}Sign up — vocab-man{% endblock %}
+
+{% block card %}
+  <form method="post" action="{% url 'account_signup' %}" class="flex flex-col gap-3.5">
+    {% csrf_token %}
+    {{ redirect_field }}
+    <h1 class="text-[22px] font-semibold">Sign up</h1>
+    {% if form.non_field_errors %}
+      <p class="text-[13px] text-clay" role="alert">{{ form.non_field_errors|striptags }}</p>
+    {% endif %}
+
+    <label class="flex flex-col gap-2">
+      <span class="text-[13px] font-semibold">Email</span>
+      <input type="email" name="email" value="{{ form.email.value|default_if_none:'' }}" placeholder="you@email.com" autocomplete="email" required class="h-12 rounded-xl border bg-white px-3.5 text-[15px] placeholder:text-muted focus:border-teal focus:outline-none {% if form.email.errors %}border-clay{% else %}border-line{% endif %}">
+      {% if form.email.errors %}<span class="text-[13px] text-clay">{{ form.email.errors|striptags }}</span>{% endif %}
+    </label>
+
+    <label class="flex flex-col gap-2">
+      <span class="text-[13px] font-semibold">Password</span>
+      <input type="password" name="password1" placeholder="Password" autocomplete="new-password" required class="h-12 rounded-xl border bg-white px-3.5 text-[15px] placeholder:text-muted focus:border-teal focus:outline-none {% if form.password1.errors %}border-clay{% else %}border-line{% endif %}">
+      {% if form.password1.errors %}<span class="text-[13px] text-clay">{{ form.password1.errors|striptags }}</span>{% else %}<span class="text-[13px] text-muted">At least 8 characters.</span>{% endif %}
+    </label>
+
+    <label class="flex flex-col gap-2">
+      <span class="text-[13px] font-semibold">Confirm password</span>
+      <input type="password" name="password2" placeholder="Password" autocomplete="new-password" required class="h-12 rounded-xl border bg-white px-3.5 text-[15px] placeholder:text-muted focus:border-teal focus:outline-none {% if form.password2.errors %}border-clay{% else %}border-line{% endif %}">
+      {% if form.password2.errors %}<span class="text-[13px] text-clay">{{ form.password2.errors|striptags }}</span>{% endif %}
+    </label>
+
+    <button type="submit" class="h-11 rounded-xl bg-teal text-sm font-semibold text-white">Sign up</button>
+  </form>
+
+  <p class="text-center text-[13px] font-medium text-muted">or</p>
+  {% include "partials/google_button.html" %}
+  <p class="text-center text-[13px] text-muted">Already have an account? <a href="{% url 'account_login' %}" class="font-semibold text-teal">Log in</a></p>
+{% endblock %}
