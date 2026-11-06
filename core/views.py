@@ -3,14 +3,8 @@ from urllib.parse import urlencode
 from django.shortcuts import render
 from django.urls import reverse
 
-from .placeholders import (
-    BANGLA_SUGGESTIONS,
-    ENGLISH_SUGGESTIONS,
-    PACK_CHOICES,
-    RECENT,
-    WORD_DETAILS,
-    WORDPACKS,
-)
+from .placeholders import PACK_CHOICES, RECENT, WORD_DETAILS, WORDPACKS
+from .wiktionary import is_bangla, suggest_words
 
 
 def search_url(**params):
@@ -18,10 +12,6 @@ def search_url(**params):
     if not clean:
         return reverse("home")
     return f"{reverse('home')}?{urlencode(clean)}"
-
-
-def is_bangla(text):
-    return any("\u0980" <= char <= "\u09ff" for char in text)
 
 
 def home(request):
@@ -33,11 +23,7 @@ def home(request):
     detail = WORD_DETAILS.get(word)
     if word and detail is None:
         detail = WORD_DETAILS["ancestor"]
-    if query and not word:
-        source = BANGLA_SUGGESTIONS if is_bangla(query) else ENGLISH_SUGGESTIONS
-        suggestions = [{"word": item, "bn": is_bangla(item)} for item in source]
-    else:
-        suggestions = []
+    suggestions = suggest_words(query) if query and not word else []
 
     stage = "empty"
     if word and detail:
@@ -64,4 +50,12 @@ def home(request):
         "pack_url": search_url(q=query, word=word, pack="1"),
         "added_url": search_url(q=query, word=word, added="1"),
         "selected_url": selected_url,
+    })
+
+
+def suggest(request):
+    query = (request.GET.get("q") or request.GET.get("word") or "").strip()
+    return render(request, "core/partials/word_preview.html", {
+        "query": query,
+        "suggestions": suggest_words(query),
     })

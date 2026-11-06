@@ -927,6 +927,9 @@
   .focus\:border-teal:focus {
     border-color: var(--color-teal);
   }
+  .focus\:bg-teal-soft:focus {
+    background-color: var(--color-teal-soft);
+  }
   .focus\:outline-none:focus {
     --tw-outline-style: none;
     outline-style: none;

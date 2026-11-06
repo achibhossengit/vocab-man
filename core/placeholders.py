@@ -1,6 +1,3 @@
-ENGLISH_SUGGESTIONS = ["ancestors", "ancestor", "ancestor worship"]
-BANGLA_SUGGESTIONS = ["পূর্ব", "পূর্বপুরুষ", "পূর্বসূরি"]
-
 WORD_DETAILS = {
     "ancestor": {
         "meaning": "পূর্বপুরুষ",
