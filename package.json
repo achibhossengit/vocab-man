@@ -1,0 +1,23 @@
+{
+  "name": "dw-card",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "tailwindcss -i ./assets/css/input.css -o ./static/css/app.css --watch",
+    "build": "tailwindcss -i ./assets/css/input.css -o ./static/css/app.css --minify"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/achibhossengit/vocab-man.git"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/achibhossengit/vocab-man/issues"
+  },
+  "homepage": "https://github.com/achibhossengit/vocab-man#readme",
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.4",
+    "tailwindcss": "^4.3.4"
+  }
+}

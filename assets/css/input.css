@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+@source "../../templates";
+
+@theme {
+  --color-paper: #f3eee6;
+  --color-ink: #1c1915;
+  --color-muted: #6f675e;
+  --color-line: #e3d8c8;
+  --color-card: #fffcf8;
+  --color-teal: #0e6b66;
+  --color-teal-soft: #dcecea;
+  --color-clay: #8c3a2f;
+  --font-sans: "Inter Tight", ui-sans-serif, system-ui, sans-serif;
+  --font-bn: "Noto Sans Bengali", sans-serif;
+}
