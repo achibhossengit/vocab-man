@@ -118,6 +118,7 @@ SITE_ID = 1
 LOGIN_URL = 'account_login'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+ACCOUNT_ADAPTER = 'core.adapters.AccountAdapter'
 
 ACCOUNT_LOGIN_METHODS = {'email'}
 ACCOUNT_SESSION_REMEMBER = True

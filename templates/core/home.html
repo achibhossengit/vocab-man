@@ -2,14 +2,10 @@
 
 {% block content %}
   <div class="mx-auto flex w-full max-w-[720px] flex-col gap-4 px-5 py-10 sm:px-0">
-    <div class="flex h-9 items-center gap-4">
-      <p class="flex items-center gap-4 text-base font-semibold text-teal">
-        <span>English</span>
-        <span class="text-lg font-medium text-muted" aria-hidden="true">⇄</span>
-        <span>Bengali</span>
-      </p>
+    <div class="flex h-9 items-center">
+      <h1 class="text-[30px] font-semibold leading-none text-ink">Make with Word or phrase</h1>
       <div id="search-settings" class="relative ml-auto">
-        <button type="button" id="search-settings-button" class="grid size-8 place-items-center rounded-[10px] border border-line bg-white text-base font-medium leading-none text-ink" aria-label="Settings" aria-haspopup="dialog" aria-expanded="false" aria-controls="search-settings-panel">
+        <button type="button" id="search-settings-button" class="grid size-9 place-items-center text-[30px] font-medium leading-none text-ink" aria-label="Settings" aria-haspopup="dialog" aria-expanded="false" aria-controls="search-settings-panel">
           <span aria-hidden="true">⚙</span>
         </button>
         <div id="search-settings-panel" role="dialog" aria-label="Search settings" hidden class="absolute right-0 top-[calc(100%+8px)] z-20 flex w-[300px] max-w-[calc(100vw-2.5rem)] flex-col gap-3.5 rounded-2xl border border-line bg-white p-3.5 shadow-[0_8px_24px_rgb(28_25_21/0.14)]">
@@ -53,8 +49,8 @@
 
     <form action="{% url 'home' %}" method="get">
       <label class="block">
-        <span class="sr-only">Search a word or phrase</span>
-        <input type="search" name="q" value="{{ query }}" placeholder="Search a word or phrase" class="h-16 w-full rounded-2xl border border-line bg-white px-[18px] text-lg placeholder:text-muted focus:border-teal focus:outline-none">
+        <span class="sr-only">Make with Word or phrase</span>
+        <input type="search" name="q" value="{{ query }}" placeholder="Enter any bangla or english word or pharase" class="box-border h-[114px] w-full rounded-2xl border border-line bg-white px-[14px] pt-[14px] pb-[71px] text-[24px] font-normal leading-[1.2] text-ink placeholder:text-muted focus:border-teal focus:outline-none">
       </label>
     </form>
 
