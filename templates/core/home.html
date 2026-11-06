@@ -58,6 +58,41 @@
       </label>
     </form>
 
+    {% if recent %}
+      <section class="flex flex-col gap-2">
+        <div class="flex items-center justify-between px-1 pt-2">
+          <h2 class="text-[13px] font-semibold text-muted">Recent</h2>
+          <span class="text-[13px] font-semibold text-teal">Show all</span>
+        </div>
+        <div class="overflow-hidden rounded-2xl border border-line bg-card">
+          {% for item in recent %}
+            <div class="border-t border-line px-4 py-3.5 first:border-t-0">
+              <p class="text-base font-semibold">{{ item.word }}</p>
+              <p class="text-sm text-muted {% if item.meaning %}font-bn{% endif %}">{{ item.meaning }}</p>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+
+    {% if wordpacks %}
+      <section class="flex flex-col gap-2">
+        <div class="flex items-center justify-between px-1 pt-2">
+          <h2 class="text-[13px] font-semibold text-muted">Wordpacks</h2>
+          <span class="text-[13px] font-semibold text-teal">Show all</span>
+        </div>
+        <div class="overflow-hidden rounded-2xl border border-line bg-card">
+          {% for pack in wordpacks %}
+            <div class="border-t border-line px-4 py-3.5 first:border-t-0">
+              <p class="text-base font-semibold">{{ pack.name }}</p>
+              <p class="text-sm text-muted">{{ pack.detail }}</p>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+
+    {% if not user.is_authenticated %}
     <div class="flex h-[405px] flex-col overflow-hidden rounded-2xl bg-ink text-card">
       <div class="flex flex-1 flex-col items-center justify-center gap-4">
         <span class="grid size-16 place-items-center rounded-full bg-card pl-1 text-teal" aria-hidden="true">
@@ -143,6 +178,7 @@
         </div>
       </section>
     </section>
+    {% endif %}
   </div>
   <script>
     (function () {

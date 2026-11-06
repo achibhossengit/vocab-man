@@ -5,12 +5,25 @@
       <span class="text-lg font-semibold tracking-tight">Vocab-Man</span>
     </a>
     {% if user.is_authenticated %}
-      <a href="{% url 'profile' %}" class="grid size-9 place-items-center rounded-full bg-teal text-white" aria-label="Profile">
-        <svg viewBox="0 0 24 24" class="size-4" fill="currentColor" aria-hidden="true">
-          <circle cx="12" cy="8" r="3.2"></circle>
-          <path d="M6.5 18.5c.8-2.8 2.9-4.2 5.5-4.2s4.7 1.4 5.5 4.2"></path>
-        </svg>
-      </a>
+      <div id="profile-menu" class="relative">
+        <button type="button" id="profile-menu-button" class="grid size-9 place-items-center rounded-full bg-teal text-white" aria-label="Profile" aria-haspopup="menu" aria-expanded="false" aria-controls="profile-menu-panel">
+          <svg viewBox="0 0 24 24" class="size-4" fill="currentColor" aria-hidden="true">
+            <circle cx="12" cy="8" r="3.2"></circle>
+            <path d="M6.5 18.5c.8-2.8 2.9-4.2 5.5-4.2s4.7 1.4 5.5 4.2"></path>
+          </svg>
+        </button>
+        <div id="profile-menu-panel" role="menu" hidden class="absolute right-0 top-[calc(100%+8px)] z-30 flex w-[260px] flex-col gap-3 rounded-2xl border border-line bg-white p-3.5 shadow-[0_8px_24px_rgb(28_25_21/0.14)]">
+          <div class="min-w-0">
+            <p class="truncate text-sm font-semibold">{{ user.get_full_name|default:user.email }}</p>
+            {% if user.get_full_name %}<p class="truncate text-[13px] text-muted">{{ user.email }}</p>{% endif %}
+          </div>
+          <a href="{% url 'account_change_password' %}" role="menuitem" class="inline-flex h-11 items-center justify-center rounded-[10px] border border-line bg-white text-sm font-semibold">Change password</a>
+          <form method="post" action="{% url 'account_logout' %}">
+            {% csrf_token %}
+            <button type="submit" role="menuitem" class="h-11 w-full rounded-[10px] bg-clay text-sm font-semibold text-white">Log out</button>
+          </form>
+        </div>
+      </div>
     {% else %}
       <a href="{% url 'account_login' %}" class="inline-flex h-9 items-center gap-2 rounded-full py-1.5 pl-1.5 pr-3.5 text-sm font-semibold {% if request.resolver_match.url_name == 'account_login' %}bg-teal-soft text-teal{% else %}border border-line bg-card text-ink{% endif %}">
         <span class="grid size-6 place-items-center rounded-full bg-teal text-white" aria-hidden="true">

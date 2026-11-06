@@ -12,18 +12,44 @@
   <script src="{% static 'js/htmx.min.js' %}" defer></script>
   {% block extra_head %}{% endblock %}
 </head>
-<body class="bg-paper font-sans text-ink antialiased">
+<body class="flex min-h-screen flex-col bg-paper font-sans text-ink antialiased">
   {% include "partials/header.html" %}
-  {% if messages %}
-    <div class="mx-auto flex w-full max-w-[720px] flex-col gap-2 px-5 pt-4 sm:px-0">
-      {% for message in messages %}
-        <p class="rounded-xl border border-line bg-card px-4 py-3 text-sm {% if 'error' in message.tags %}text-clay{% endif %}" role="status">{{ message }}</p>
-      {% endfor %}
-    </div>
-  {% endif %}
-  <main>
+  <div id="toasts" class="pointer-events-none fixed inset-x-0 top-4 z-50 flex flex-col items-center gap-2 px-5">
+    {% for message in messages %}
+      <p data-toast role="status" class="pointer-events-auto w-full max-w-sm rounded-xl border bg-white px-4 py-3 text-sm shadow-[0_8px_24px_rgb(28_25_21/0.14)] transition duration-200 {% if 'error' in message.tags %}border-clay text-clay{% else %}border-line text-ink{% endif %}">{{ message }}</p>
+    {% endfor %}
+  </div>
+  <main class="flex-1">
     {% block content %}{% endblock %}
   </main>
   {% include "partials/footer.html" %}
+  <script>
+    document.querySelectorAll("[data-toast]").forEach(function (toast) {
+      window.setTimeout(function () {
+        toast.classList.add("opacity-0");
+        window.setTimeout(function () { toast.remove(); }, 200);
+      }, toast.classList.contains("text-clay") ? 6000 : 4000);
+    });
+
+    const profileMenu = document.getElementById("profile-menu");
+    if (profileMenu) {
+      const profileButton = document.getElementById("profile-menu-button");
+      const profilePanel = document.getElementById("profile-menu-panel");
+      function setProfileOpen(open) {
+        profileButton.setAttribute("aria-expanded", open ? "true" : "false");
+        profilePanel.hidden = !open;
+      }
+      profileButton.addEventListener("click", function (event) {
+        event.stopPropagation();
+        setProfileOpen(profileButton.getAttribute("aria-expanded") !== "true");
+      });
+      document.addEventListener("click", function (event) {
+        if (!profileMenu.contains(event.target)) setProfileOpen(false);
+      });
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") setProfileOpen(false);
+      });
+    }
+  </script>
 </body>
 </html>
