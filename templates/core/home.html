@@ -1,5 +1,192 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <p class="p-8 text-lg font-semibold">vocab-man</p>
+  <div class="mx-auto flex w-full max-w-[720px] flex-col gap-4 px-5 py-10 sm:px-0">
+    <div class="flex h-9 items-center gap-4">
+      <p class="flex items-center gap-4 text-base font-semibold text-teal">
+        <span>English</span>
+        <span class="text-lg font-medium text-muted" aria-hidden="true">⇄</span>
+        <span>Bengali</span>
+      </p>
+      <div id="search-settings" class="relative ml-auto">
+        <button type="button" id="search-settings-button" class="grid size-8 place-items-center rounded-[10px] border border-line bg-white text-base font-medium leading-none text-ink" aria-label="Settings" aria-haspopup="dialog" aria-expanded="false" aria-controls="search-settings-panel">
+          <span aria-hidden="true">⚙</span>
+        </button>
+        <div id="search-settings-panel" role="dialog" aria-label="Search settings" hidden class="absolute right-0 top-[calc(100%+8px)] z-20 flex w-[300px] max-w-[calc(100vw-2.5rem)] flex-col gap-3.5 rounded-2xl border border-line bg-white p-3.5 shadow-[0_8px_24px_rgb(28_25_21/0.14)]">
+          <p class="text-sm font-semibold">Search settings</p>
+          <div class="flex flex-col gap-2">
+            <p class="text-[13px] font-semibold">Example tone</p>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" data-tone class="h-8 rounded-lg border border-line text-xs font-semibold text-muted aria-pressed:border-transparent aria-pressed:bg-teal-soft aria-pressed:text-teal" aria-pressed="false">Funny</button>
+              <button type="button" data-tone class="h-8 rounded-lg border border-line text-xs font-semibold text-muted aria-pressed:border-transparent aria-pressed:bg-teal-soft aria-pressed:text-teal" aria-pressed="false">Professional</button>
+              <button type="button" data-tone class="h-8 rounded-lg border border-line text-xs font-semibold text-muted aria-pressed:border-transparent aria-pressed:bg-teal-soft aria-pressed:text-teal" aria-pressed="false">Casual</button>
+              <button type="button" data-tone class="h-8 rounded-lg border border-line text-xs font-semibold text-muted aria-pressed:border-transparent aria-pressed:bg-teal-soft aria-pressed:text-teal" aria-pressed="true">Balanced</button>
+            </div>
+          </div>
+          <div class="flex items-center justify-between" data-step>
+            <p class="text-[13px] font-semibold">Max synonyms</p>
+            <div class="flex items-center gap-2">
+              <button type="button" data-dec class="grid size-7 place-items-center rounded-lg border border-line bg-white text-base font-medium leading-none" aria-label="Fewer synonyms">−</button>
+              <span data-value class="min-w-[9px] text-center text-sm font-semibold">3</span>
+              <button type="button" data-inc class="grid size-7 place-items-center rounded-lg border border-line bg-white text-base font-medium leading-none" aria-label="More synonyms">+</button>
+            </div>
+          </div>
+          <div class="flex items-center justify-between" data-step>
+            <p class="text-[13px] font-semibold">Max antonyms</p>
+            <div class="flex items-center gap-2">
+              <button type="button" data-dec class="grid size-7 place-items-center rounded-lg border border-line bg-white text-base font-medium leading-none" aria-label="Fewer antonyms">−</button>
+              <span data-value class="min-w-[9px] text-center text-sm font-semibold">3</span>
+              <button type="button" data-inc class="grid size-7 place-items-center rounded-lg border border-line bg-white text-base font-medium leading-none" aria-label="More antonyms">+</button>
+            </div>
+          </div>
+          <div class="flex items-center justify-between" data-step>
+            <p class="text-[13px] font-semibold">Max examples</p>
+            <div class="flex items-center gap-2">
+              <button type="button" data-dec class="grid size-7 place-items-center rounded-lg border border-line bg-white text-base font-medium leading-none" aria-label="Fewer examples">−</button>
+              <span data-value class="min-w-[9px] text-center text-sm font-semibold">2</span>
+              <button type="button" data-inc class="grid size-7 place-items-center rounded-lg border border-line bg-white text-base font-medium leading-none" aria-label="More examples">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <form action="{% url 'home' %}" method="get">
+      <label class="block">
+        <span class="sr-only">Search a word or phrase</span>
+        <input type="search" name="q" value="{{ query }}" placeholder="Search a word or phrase" class="h-16 w-full rounded-2xl border border-line bg-white px-[18px] text-lg placeholder:text-muted focus:border-teal focus:outline-none">
+      </label>
+    </form>
+
+    <div class="flex h-[405px] flex-col overflow-hidden rounded-2xl bg-ink text-card">
+      <div class="flex flex-1 flex-col items-center justify-center gap-4">
+        <span class="grid size-16 place-items-center rounded-full bg-card pl-1 text-teal" aria-hidden="true">
+          <svg viewBox="0 0 16 18" class="h-[18px] w-4" fill="currentColor">
+            <path d="M1.2 1.2 14.2 9 1.2 16.8Z"></path>
+          </svg>
+        </span>
+        <p class="text-xl font-semibold">Search. Save. Practice.</p>
+      </div>
+      <div class="flex items-center gap-3 px-5 pb-[18px]">
+        <div class="h-1 flex-1 overflow-hidden rounded-full bg-white">
+          <div class="h-full w-[34%] rounded-full bg-card"></div>
+        </div>
+        <p class="text-xs font-semibold">0:42</p>
+      </div>
+    </div>
+
+    <section class="flex flex-col gap-7 pt-3">
+      <div class="flex flex-col gap-2.5">
+        <h1 class="text-[2rem] font-semibold leading-tight">A card for every word you look up.</h1>
+        <p class="text-base text-muted">Search in English or Bangla. Save one meaning, with an example and the words around it.</p>
+      </div>
+
+      <ol class="overflow-hidden rounded-2xl border border-line bg-card">
+        <li class="flex items-center gap-4 px-5 py-4">
+          <span class="w-7 shrink-0 text-[15px] font-semibold text-teal">01</span>
+          <span>
+            <span class="block text-[15px] font-semibold">Search</span>
+            <span class="mt-1 block text-sm text-muted">Type a word or a short phrase.</span>
+          </span>
+        </li>
+        <li class="border-t border-line px-5 py-4">
+          <div class="flex items-center gap-4">
+            <span class="w-7 shrink-0 text-[15px] font-semibold text-teal">02</span>
+            <span>
+              <span class="block text-[15px] font-semibold">Save</span>
+              <span class="mt-1 block text-sm text-muted">Keep the meaning, examples, synonyms, and antonyms on one card.</span>
+            </span>
+          </div>
+        </li>
+        <li class="border-t border-line px-5 py-4">
+          <div class="flex items-center gap-4">
+            <span class="w-7 shrink-0 text-[15px] font-semibold text-teal">03</span>
+            <span>
+              <span class="block text-[15px] font-semibold">Practice</span>
+              <span class="mt-1 block text-sm text-muted">Flip the card. You choose what shows in English and what shows in Bangla.</span>
+            </span>
+          </div>
+        </li>
+      </ol>
+
+      <section class="flex flex-col gap-3">
+        <h2 class="text-[22px] font-semibold">How a word becomes a card</h2>
+        <div class="flex flex-col gap-3 text-base leading-6 text-muted">
+          <p>vocab-man is a bilingual flashcard for a word or a short phrase. Type in English and read the Bangla meaning, or type in Bangla and choose the English word that fits.</p>
+          <p>One entry is one card. Search that word again and the same card updates, instead of saving a second copy.</p>
+          <p>A card keeps the part of speech, meaning, example sentences, and the words around it. The example shows how the word is used. Synonyms and antonyms stay on that same card.</p>
+          <p>You choose the front and the back. A card can have two sides or three, and you can change that whenever you practice.</p>
+          <p>Suggestions stay on words and short phrases. A full sentence is not a card. The card shows the most relevant meaning. If that is not the sense you wanted, refresh the result and keep another.</p>
+          <p>Flip the card to practice. The English word can sit on the front and the Bangla meaning on the back, or the other way around. Looking up a word does not need an account. Log in when you want the card saved.</p>
+        </div>
+      </section>
+
+      <section class="flex flex-col gap-2.5">
+        <h2 class="text-[22px] font-semibold">Questions</h2>
+        <div class="overflow-hidden rounded-2xl border border-line bg-card">
+          <div class="px-5 py-4">
+            <h3 class="text-[15px] font-semibold">Can I search from Bangla to English?</h3>
+            <p class="mt-1 text-sm leading-5 text-muted">Yes. Type a Bangla word, pick one of the English words offered, and the card opens for that word.</p>
+          </div>
+          <div class="border-t border-line px-5 py-4">
+            <h3 class="text-[15px] font-semibold">Can a word have more than one meaning?</h3>
+            <p class="mt-1 text-sm leading-5 text-muted">Yes. The card shows one meaning at a time, with its part of speech. Refresh the result to see another.</p>
+          </div>
+          <div class="border-t border-line px-5 py-4">
+            <h3 class="text-[15px] font-semibold">What can I save?</h3>
+            <p class="mt-1 text-sm leading-5 text-muted">A word or a short phrase. Meaning, example, synonyms, and antonyms stay together on that one card.</p>
+          </div>
+          <div class="border-t border-line px-5 py-4">
+            <h3 class="text-[15px] font-semibold">Do I need an account?</h3>
+            <p class="mt-1 text-sm leading-5 text-muted">No. You can look up a word and read the card without logging in. Log in when you want the card saved so you can find it again.</p>
+          </div>
+        </div>
+      </section>
+    </section>
+  </div>
+  <script>
+    (function () {
+      const root = document.getElementById("search-settings");
+      const button = document.getElementById("search-settings-button");
+      const panel = document.getElementById("search-settings-panel");
+
+      function setOpen(open) {
+        button.setAttribute("aria-expanded", open ? "true" : "false");
+        panel.hidden = !open;
+      }
+
+      button.addEventListener("click", function (event) {
+        event.stopPropagation();
+        setOpen(button.getAttribute("aria-expanded") !== "true");
+      });
+
+      document.addEventListener("click", function (event) {
+        if (!root.contains(event.target)) setOpen(false);
+      });
+
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") setOpen(false);
+      });
+
+      panel.querySelectorAll("[data-tone]").forEach(function (tone) {
+        tone.addEventListener("click", function () {
+          panel.querySelectorAll("[data-tone]").forEach(function (other) {
+            other.setAttribute("aria-pressed", other === tone ? "true" : "false");
+          });
+        });
+      });
+
+      panel.querySelectorAll("[data-step]").forEach(function (control) {
+        const value = control.querySelector("[data-value]");
+        control.querySelector("[data-dec]").addEventListener("click", function () {
+          const next = Number(value.textContent) - 1;
+          if (next >= 0) value.textContent = String(next);
+        });
+        control.querySelector("[data-inc]").addEventListener("click", function () {
+          const next = Number(value.textContent) + 1;
+          if (next <= 10) value.textContent = String(next);
+        });
+      });
+    })();
+  </script>
 {% endblock %}

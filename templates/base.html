@@ -12,7 +12,11 @@
   <script src="{% static 'js/htmx.min.js' %}" defer></script>
   {% block extra_head %}{% endblock %}
 </head>
-<body class="bg-paper text-ink font-sans antialiased">
-  {% block content %}{% endblock %}
+<body class="bg-paper font-sans text-ink antialiased">
+  {% include "partials/header.html" %}
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+  {% include "partials/footer.html" %}
 </body>
 </html>
