@@ -125,7 +125,7 @@ def _post(url, body, headers):
         with urlopen(request, timeout=20) as response:
             return json.loads(response.read().decode())
     except (HTTPError, URLError, TimeoutError, json.JSONDecodeError) as exc:
-        raise ProviderDown("Could not load this card. Try Refresh.") from exc
+        raise ProviderDown("Could not load this card.") from exc
 
 
 CARD_SCHEMA = {
@@ -163,7 +163,7 @@ def _generate_gemini(word, options):
     try:
         return json.loads(payload["candidates"][0]["content"]["parts"][0]["text"])
     except (KeyError, IndexError, TypeError, json.JSONDecodeError) as exc:
-        raise ProviderDown("Could not load this card. Try Refresh.") from exc
+        raise ProviderDown("Could not load this card.") from exc
 
 
 def _generate_openai(word, options):
@@ -190,7 +190,7 @@ def _generate_openai(word, options):
     try:
         return json.loads(payload["choices"][0]["message"]["content"])
     except (KeyError, IndexError, TypeError, json.JSONDecodeError) as exc:
-        raise ProviderDown("Could not load this card. Try Refresh.") from exc
+        raise ProviderDown("Could not load this card.") from exc
 
 
 def _available_providers():
@@ -219,7 +219,7 @@ def _generate(word, options):
         with _active_lock:
             _active = name
         return payload
-    raise LookupFailed("Could not load this card. Try Refresh.") from last
+    raise LookupFailed("Could not load this card.") from last
 
 
 def lookup_card(word, options):

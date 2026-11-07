@@ -175,7 +175,7 @@
           <p>One entry is one card. Search that word again and the same card updates, instead of saving a second copy.</p>
           <p>A card keeps the part of speech, meaning, example sentences, and the words around it. The example shows how the word is used. Synonyms and antonyms stay on that same card.</p>
           <p>You choose the front and the back. A card can have two sides or three, and you can change that whenever you practice.</p>
-          <p>Suggestions stay on words and short phrases. A full sentence is not a card. The card shows the most relevant meaning. If that is not the sense you wanted, refresh the result and keep another.</p>
+          <p>Suggestions stay on words and short phrases. A full sentence is not a card. The card shows the most relevant meaning.</p>
           <p>Flip the card to practice. The English word can sit on the front and the Bangla meaning on the back, or the other way around. Looking up a word does not need an account. Log in when you want the card saved.</p>
         </div>
       </section>
@@ -189,7 +189,7 @@
           </div>
           <div class="border-t border-line px-5 py-4">
             <h3 class="text-[15px] font-semibold">Can a word have more than one meaning?</h3>
-            <p class="mt-1 text-sm leading-5 text-muted">Yes. The card shows one meaning at a time, with its part of speech. Refresh the result to see another.</p>
+            <p class="mt-1 text-sm leading-5 text-muted">Yes. The card shows one meaning at a time, with its part of speech.</p>
           </div>
           <div class="border-t border-line px-5 py-4">
             <h3 class="text-[15px] font-semibold">What can I save?</h3>
@@ -205,7 +205,6 @@
     </div>
     {% endif %}
   </div>
-  <div id="pack-slot">{% if show_pack %}{% include "core/partials/add_pack.html" %}{% endif %}</div>
   <script>
     (function () {
       const input = document.getElementById("search-q");
@@ -247,7 +246,6 @@
       }
 
       function resetHome() {
-        if (document.getElementById("add-pack")) closePack(false);
         input.value = "";
         setActive(false);
         results.innerHTML = "";
@@ -261,7 +259,7 @@
       input.addEventListener("input", function () {
         const value = input.value.trim();
         setActive(value.length > 0);
-        if (!value && (window.location.search || document.getElementById("add-pack"))) {
+        if (!value && window.location.search) {
           resetHome();
           return;
         }
@@ -291,117 +289,44 @@
           event.stopImmediatePropagation();
           return;
         }
-        fresh.value = event.submitter && event.submitter.hasAttribute("data-refresh") ? "1" : "";
+        fresh.value = "";
       });
+      function paintCheck(button, on) {
+        const box = button.querySelector("[data-box]");
+        button.setAttribute("aria-pressed", on ? "true" : "false");
+        box.classList.toggle("bg-teal", on);
+        box.classList.toggle("text-white", on);
+        box.classList.toggle("border", !on);
+        box.classList.toggle("border-line", !on);
+        box.classList.toggle("bg-white", !on);
+        box.classList.toggle("text-transparent", !on);
+      }
       results.addEventListener("click", function (event) {
+        const check = event.target.closest("[data-check]");
+        if (check) {
+          paintCheck(check, check.getAttribute("aria-pressed") !== "true");
+          return;
+        }
+        const pack = event.target.closest("[data-pack]");
+        if (pack) {
+          const on = pack.getAttribute("aria-pressed") !== "true";
+          pack.setAttribute("aria-pressed", on ? "true" : "false");
+          pack.classList.toggle("bg-teal", on);
+          pack.classList.toggle("text-white", on);
+          pack.classList.toggle("border", !on);
+          pack.classList.toggle("border-line", !on);
+          pack.classList.toggle("bg-white", !on);
+          pack.classList.toggle("text-ink", !on);
+          const count = pack.querySelector("span:last-child");
+          count.classList.toggle("text-white", on);
+          count.classList.toggle("text-teal", !on);
+          return;
+        }
         const link = event.target.closest("[data-suggestion]");
         if (!link) return;
         event.preventDefault();
         input.value = link.textContent.trim();
         form.requestSubmit();
-      });
-      const packSlot = document.getElementById("pack-slot");
-      let packLock = null;
-
-      function closePack(push) {
-        const dialog = document.getElementById("add-pack");
-        const back = dialog ? dialog.dataset.selected : "";
-        if (packLock) {
-          window.removeEventListener("wheel", packLock.blockPageScroll);
-          window.removeEventListener("touchmove", packLock.blockPageScroll);
-          window.removeEventListener("keydown", packLock.blockKeys);
-          const scrollY = packLock.scrollY;
-          packLock = null;
-          document.documentElement.style.overflow = "";
-          document.body.style.overflow = "";
-          document.body.style.position = "";
-          document.body.style.top = "";
-          document.body.style.left = "";
-          document.body.style.right = "";
-          document.body.style.width = "";
-          window.scrollTo(0, scrollY);
-        }
-        if (packSlot) packSlot.innerHTML = "";
-        if (push && back) history.pushState(null, "", back);
-      }
-
-      function openPack() {
-        const dialog = document.getElementById("add-pack");
-        if (!dialog || dialog.dataset.ready === "true") return;
-        dialog.dataset.ready = "true";
-        const panel = dialog.querySelector("[role=dialog]");
-        const scrollY = window.scrollY;
-        document.documentElement.style.overflow = "hidden";
-        document.body.style.overflow = "hidden";
-        document.body.style.position = "fixed";
-        document.body.style.top = "-" + scrollY + "px";
-        document.body.style.left = "0";
-        document.body.style.right = "0";
-        document.body.style.width = "100%";
-        function blockPageScroll(event) {
-          if (panel.contains(event.target) && panel.scrollHeight > panel.clientHeight + 1) return;
-          event.preventDefault();
-        }
-        function blockKeys(event) {
-          if (event.key === "Escape") {
-            closePack(true);
-            return;
-          }
-          const keys = [" ", "PageUp", "PageDown", "ArrowUp", "ArrowDown", "Home", "End"];
-          const tag = event.target.tagName;
-          if ((tag === "BUTTON" || tag === "A" || tag === "INPUT") && event.key === " ") return;
-          if (keys.indexOf(event.key) !== -1) event.preventDefault();
-        }
-        window.addEventListener("wheel", blockPageScroll, { passive: false });
-        window.addEventListener("touchmove", blockPageScroll, { passive: false });
-        window.addEventListener("keydown", blockKeys);
-        packLock = { scrollY: scrollY, blockPageScroll: blockPageScroll, blockKeys: blockKeys };
-        dialog.addEventListener("click", function (event) {
-          if (event.target === dialog) closePack(true);
-        });
-        panel.addEventListener("click", function (event) {
-          if (event.target.closest("[data-close-pack]")) {
-            closePack(true);
-            return;
-          }
-          event.stopPropagation();
-        });
-        function paint(button, on) {
-          const box = button.querySelector("[data-box]");
-          button.setAttribute("aria-pressed", on ? "true" : "false");
-          box.classList.toggle("bg-teal", on);
-          box.classList.toggle("text-white", on);
-          box.classList.toggle("border", !on);
-          box.classList.toggle("border-line", !on);
-          box.classList.toggle("bg-white", !on);
-          box.classList.toggle("text-transparent", !on);
-        }
-        dialog.querySelectorAll("[data-check]").forEach(function (button) {
-          button.addEventListener("click", function () {
-            paint(button, button.getAttribute("aria-pressed") !== "true");
-          });
-        });
-        dialog.querySelectorAll("[data-pack]").forEach(function (button) {
-          button.addEventListener("click", function () {
-            const on = button.getAttribute("aria-pressed") !== "true";
-            button.setAttribute("aria-pressed", on ? "true" : "false");
-            button.classList.toggle("bg-teal", on);
-            button.classList.toggle("text-white", on);
-            button.classList.toggle("border", !on);
-            button.classList.toggle("border-line", !on);
-            button.classList.toggle("bg-white", !on);
-            button.classList.toggle("text-ink", !on);
-            const count = button.querySelector("span:last-child");
-            count.classList.toggle("text-white", on);
-            count.classList.toggle("text-teal", !on);
-          });
-        });
-        const close = dialog.querySelector("[data-close-pack]");
-        if (close) close.focus();
-      }
-
-      document.addEventListener("click", function (event) {
-        if (event.target.closest("[data-close-pack]")) closePack(true);
       });
 
       document.body.addEventListener("htmx:beforeRequest", function (event) {
@@ -410,11 +335,6 @@
           event.detail.xhr.kind = "card";
           requestKind = "card";
           if (elt === form) showSkeleton();
-          if (elt && elt.hasAttribute("data-save-card")) closePack(false);
-          return;
-        }
-        if (elt && elt.hasAttribute("data-open-pack")) {
-          event.detail.xhr.kind = "pack";
           return;
         }
         event.detail.xhr.kind = "suggest";
@@ -426,10 +346,6 @@
         }
       });
       document.body.addEventListener("htmx:afterSwap", function (event) {
-        if (event.detail.target === packSlot || (event.detail.xhr && event.detail.xhr.kind === "pack")) {
-          openPack();
-          return;
-        }
         if (event.detail.target !== results) return;
         results.removeAttribute("aria-busy");
         fresh.value = "";
@@ -445,7 +361,7 @@
         input.setSelectionRange(end, end);
       });
       function showCardError() {
-        results.innerHTML = '<div class="h-px bg-line"></div><p class="p-4 text-sm text-clay">Could not load this card. Try Refresh.</p>';
+        results.innerHTML = '<div class="h-px bg-line"></div><p class="p-4 text-sm text-clay">Could not load this card.</p>';
         results.removeAttribute("aria-busy");
       }
       document.body.addEventListener("htmx:responseError", function (event) {
@@ -509,12 +425,9 @@
         }
       });
 
-      if (document.getElementById("add-pack")) openPack();
-      else {
-        input.focus();
-        const end = input.value.length;
-        input.setSelectionRange(end, end);
-      }
+      input.focus();
+      const end = input.value.length;
+      input.setSelectionRange(end, end);
     })();
   </script>
   <script>

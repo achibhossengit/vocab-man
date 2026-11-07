@@ -7,6 +7,5 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('suggest/', views.suggest, name='suggest'),
     path('card/', views.card, name='card'),
-    path('pack/', views.pack, name='pack'),
     path('login/', RedirectView.as_view(pattern_name='account_login', query_string=True), name='login'),
 ]

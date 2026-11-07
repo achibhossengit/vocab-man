@@ -1,16 +1,6 @@
 <div class="h-px bg-line"></div>
 <div class="flex flex-col gap-2.5 p-4">
-  <div class="flex items-center justify-between gap-3">
-    <p class="text-[22px] font-semibold leading-none {% if detail.meaning_bn %}font-bn{% endif %}">{{ detail.meaning }}</p>
-    {% if stage == "added" %}
-      <a href="#wordpacks" class="inline-flex h-9 items-center rounded-[10px] bg-teal px-3.5 text-sm font-semibold text-white">Go to Pack</a>
-    {% else %}
-      <div class="flex items-center gap-2">
-        <button type="submit" form="search-form" data-refresh class="inline-flex h-9 items-center rounded-[10px] border border-teal bg-white px-3.5 text-sm font-semibold text-teal">Refresh</button>
-        <a href="{{ pack_url }}" data-open-pack hx-get="{{ pack_get }}" hx-target="#pack-slot" hx-swap="innerHTML" hx-push-url="true" class="inline-flex h-9 items-center rounded-[10px] bg-teal px-3.5 text-sm font-semibold text-white">Add to pack</a>
-      </div>
-    {% endif %}
-  </div>
+  <p class="text-[22px] font-semibold leading-none {% if detail.meaning_bn %}font-bn{% endif %}">{{ detail.meaning }}</p>
   {% if detail.pos %}
     <p class="flex gap-4 text-[13px] font-semibold">
       {% for item in detail.pos %}<span>{{ item }}</span>{% endfor %}
@@ -18,24 +8,56 @@
   {% endif %}
   {% if detail.synonyms %}
     <p class="text-[13px] font-semibold text-muted">Synonyms</p>
-    <ul class="flex flex-wrap gap-3.5">
+    <ul class="flex flex-wrap gap-x-3.5 gap-y-2">
       {% for item in detail.synonyms %}
-        <li class="inline-flex h-7 items-center rounded-full bg-paper px-2.5 text-[13px] font-medium">{{ item }}</li>
+        <li>
+          <button type="button" data-check class="inline-flex items-center gap-3 text-[15px] font-medium" aria-pressed="true">
+            <span data-box class="grid size-[22px] place-items-center rounded-md bg-teal text-xs font-bold text-white" aria-hidden="true">✓</span>
+            {{ item }}
+          </button>
+        </li>
       {% endfor %}
     </ul>
   {% endif %}
   {% if detail.antonyms %}
     <p class="text-[13px] font-semibold text-muted">Antonyms</p>
-    <ul class="flex flex-wrap gap-3.5">
+    <ul class="flex flex-wrap gap-x-3.5 gap-y-2">
       {% for item in detail.antonyms %}
-        <li class="inline-flex h-7 items-center rounded-full bg-paper px-2.5 text-[13px] font-medium">{{ item }}</li>
+        <li>
+          <button type="button" data-check class="inline-flex items-center gap-3 text-[15px] font-medium" aria-pressed="true">
+            <span data-box class="grid size-[22px] place-items-center rounded-md bg-teal text-xs font-bold text-white" aria-hidden="true">✓</span>
+            {{ item }}
+          </button>
+        </li>
       {% endfor %}
     </ul>
   {% endif %}
   {% if detail.examples %}
     <p class="text-[13px] font-semibold text-muted">Examples</p>
     {% for example in detail.examples %}
-      <p class="text-[15px] font-medium leading-none">{{ example }}</p>
+      <button type="button" data-check class="flex items-start gap-3 text-left text-[15px] font-medium" aria-pressed="true">
+        <span data-box class="grid size-[22px] shrink-0 place-items-center rounded-md bg-teal text-xs font-bold text-white" aria-hidden="true">✓</span>
+        <span>{{ example }}</span>
+      </button>
     {% endfor %}
+  {% endif %}
+  <div class="flex flex-col gap-2">
+    <div class="flex items-center justify-between">
+      <p class="text-[13px] font-semibold text-muted">Select word packs</p>
+      <button type="button" class="inline-flex h-7 items-center gap-1.5 rounded-lg border border-teal bg-white px-2.5 text-[13px] font-semibold text-teal">+ New pack</button>
+    </div>
+    <div class="flex flex-wrap items-center gap-2">
+      {% for pack in pack_choices %}
+        <button type="button" data-pack class="inline-flex h-7 items-center gap-2 rounded-lg px-2.5 text-[13px] font-semibold {% if pack.selected %}bg-teal text-white{% else %}border border-line bg-white text-ink{% endif %}" aria-pressed="{% if pack.selected %}true{% else %}false{% endif %}">
+          <span>{{ pack.name }}</span>
+          <span class="{% if pack.selected %}text-white{% else %}text-teal{% endif %}">{{ pack.count }}</span>
+        </button>
+      {% endfor %}
+    </div>
+  </div>
+  {% if stage == "added" %}
+    <a href="#wordpacks" class="grid h-12 place-items-center rounded-xl bg-teal text-base font-semibold text-white">Go to Pack</a>
+  {% else %}
+    <a href="{{ added_url }}" data-save-card hx-get="{{ added_get }}" hx-target="#search-results" hx-swap="innerHTML" hx-push-url="true" class="grid h-12 place-items-center rounded-xl bg-teal text-base font-semibold text-white">Add to pack</a>
   {% endif %}
 </div>
