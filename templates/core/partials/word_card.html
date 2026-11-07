@@ -1,0 +1,9 @@
+{% if detail %}
+  {% include "core/partials/word_detail.html" %}
+{% elif card_error %}
+  <div class="h-px bg-line"></div>
+  <div class="flex items-center justify-between gap-3 p-4">
+    <p class="text-sm text-clay">{{ card_error }}</p>
+    <button type="submit" form="search-form" data-refresh class="inline-flex h-9 items-center rounded-[10px] border border-teal bg-white px-3.5 text-sm font-semibold text-teal">Refresh</button>
+  </div>
+{% endif %}

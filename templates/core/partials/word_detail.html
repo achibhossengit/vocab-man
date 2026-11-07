@@ -6,28 +6,36 @@
       <a href="#wordpacks" class="inline-flex h-9 items-center rounded-[10px] bg-teal px-3.5 text-sm font-semibold text-white">Go to Pack</a>
     {% else %}
       <div class="flex items-center gap-2">
-        <a href="{{ selected_url }}" class="inline-flex h-9 items-center rounded-[10px] border border-teal bg-white px-3.5 text-sm font-semibold text-teal">Refresh</a>
-        <a href="{{ pack_url }}" class="inline-flex h-9 items-center rounded-[10px] bg-teal px-3.5 text-sm font-semibold text-white">Add to pack</a>
+        <button type="submit" form="search-form" data-refresh class="inline-flex h-9 items-center rounded-[10px] border border-teal bg-white px-3.5 text-sm font-semibold text-teal">Refresh</button>
+        <a href="{{ pack_url }}" data-open-pack hx-get="{{ pack_get }}" hx-target="#pack-slot" hx-swap="innerHTML" hx-push-url="true" class="inline-flex h-9 items-center rounded-[10px] bg-teal px-3.5 text-sm font-semibold text-white">Add to pack</a>
       </div>
     {% endif %}
   </div>
-  <p class="flex gap-4 text-[13px] font-semibold">
-    {% for item in detail.pos %}<span>{{ item }}</span>{% endfor %}
-  </p>
-  <p class="text-[13px] font-semibold text-muted">Synonyms</p>
-  <ul class="flex flex-wrap gap-3.5">
-    {% for item in detail.synonyms %}
-      <li class="inline-flex h-7 items-center rounded-full bg-paper px-2.5 text-[13px] font-medium">{{ item }}</li>
+  {% if detail.pos %}
+    <p class="flex gap-4 text-[13px] font-semibold">
+      {% for item in detail.pos %}<span>{{ item }}</span>{% endfor %}
+    </p>
+  {% endif %}
+  {% if detail.synonyms %}
+    <p class="text-[13px] font-semibold text-muted">Synonyms</p>
+    <ul class="flex flex-wrap gap-3.5">
+      {% for item in detail.synonyms %}
+        <li class="inline-flex h-7 items-center rounded-full bg-paper px-2.5 text-[13px] font-medium">{{ item }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+  {% if detail.antonyms %}
+    <p class="text-[13px] font-semibold text-muted">Antonyms</p>
+    <ul class="flex flex-wrap gap-3.5">
+      {% for item in detail.antonyms %}
+        <li class="inline-flex h-7 items-center rounded-full bg-paper px-2.5 text-[13px] font-medium">{{ item }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+  {% if detail.examples %}
+    <p class="text-[13px] font-semibold text-muted">Examples</p>
+    {% for example in detail.examples %}
+      <p class="text-[15px] font-medium leading-none">{{ example }}</p>
     {% endfor %}
-  </ul>
-  <p class="text-[13px] font-semibold text-muted">Antonyms</p>
-  <ul class="flex flex-wrap gap-3.5">
-    {% for item in detail.antonyms %}
-      <li class="inline-flex h-7 items-center rounded-full bg-paper px-2.5 text-[13px] font-medium">{{ item }}</li>
-    {% endfor %}
-  </ul>
-  <p class="text-[13px] font-semibold text-muted">Examples</p>
-  {% for example in detail.examples %}
-    <p class="text-[15px] font-medium leading-none">{{ example }}</p>
-  {% endfor %}
+  {% endif %}
 </div>

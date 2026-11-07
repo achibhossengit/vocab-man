@@ -144,6 +144,12 @@ SOCIALACCOUNT_PROVIDERS = {
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+GEMINI_API_KEY = config('GEMINI_API_KEY', default='')
+GEMINI_MODEL = config('GEMINI_MODEL', default='gemini-2.5-flash')
+OPENAI_API_KEY = config('OPENAI_API_KEY', default='')
+OPENAI_MODEL = config('OPENAI_MODEL', default='gpt-4.1-mini')
+LLM_PROVIDER = config('LLM_PROVIDER', default='gemini')
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/

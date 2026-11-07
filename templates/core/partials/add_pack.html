@@ -1,9 +1,9 @@
-<div id="add-pack" class="fixed inset-0 z-40 flex items-center justify-center overflow-hidden bg-ink/45 px-5 py-6">
+<div id="add-pack" data-selected="{{ selected_url }}" class="fixed inset-0 z-40 flex items-center justify-center overflow-hidden bg-ink/45 px-5 py-6">
   <div role="dialog" aria-modal="true" aria-labelledby="add-pack-title" class="max-h-full w-full max-w-[640px] overflow-y-auto overscroll-contain rounded-[20px] bg-card p-6">
     <div class="flex flex-col gap-3">
       <div class="flex items-center justify-between">
         <h2 id="add-pack-title" class="text-2xl font-semibold leading-none">Add to pack</h2>
-        <a href="{{ selected_url }}" class="text-2xl leading-none text-muted" aria-label="Close">×</a>
+        <button type="button" data-close-pack class="text-2xl leading-none text-muted" aria-label="Close">×</button>
       </div>
 
       <div class="flex flex-col gap-2">
@@ -72,69 +72,7 @@
         </div>
       </div>
 
-      <a href="{{ added_url }}" class="grid h-12 place-items-center rounded-xl bg-teal text-base font-semibold text-white">Save card</a>
+      <a href="{{ added_url }}" data-save-card hx-get="{{ added_get }}" hx-target="#search-results" hx-swap="innerHTML" hx-push-url="true" class="grid h-12 place-items-center rounded-xl bg-teal text-base font-semibold text-white">Save card</a>
     </div>
   </div>
 </div>
-<script>
-  (function () {
-    const dialog = document.getElementById("add-pack");
-    const panel = dialog.querySelector("[role=dialog]");
-    const scrollY = window.scrollY;
-    document.documentElement.style.overflow = "hidden";
-    document.body.style.overflow = "hidden";
-    document.body.style.position = "fixed";
-    document.body.style.top = "-" + scrollY + "px";
-    document.body.style.left = "0";
-    document.body.style.right = "0";
-    document.body.style.width = "100%";
-    function blockPageScroll(event) {
-      if (panel.contains(event.target) && panel.scrollHeight > panel.clientHeight + 1) return;
-      event.preventDefault();
-    }
-    window.addEventListener("wheel", blockPageScroll, { passive: false });
-    window.addEventListener("touchmove", blockPageScroll, { passive: false });
-    window.addEventListener("keydown", function (event) {
-      const keys = [" ", "PageUp", "PageDown", "ArrowUp", "ArrowDown", "Home", "End"];
-      const tag = event.target.tagName;
-      if ((tag === "BUTTON" || tag === "A" || tag === "INPUT") && event.key === " ") return;
-      if (keys.indexOf(event.key) !== -1) event.preventDefault();
-    });
-    dialog.addEventListener("click", function (event) {
-      if (event.target === dialog) window.location = "{{ selected_url|escapejs }}";
-    });
-    panel.addEventListener("click", function (event) {
-      event.stopPropagation();
-    });
-    function paint(button, on) {
-      const box = button.querySelector("[data-box]");
-      button.setAttribute("aria-pressed", on ? "true" : "false");
-      box.classList.toggle("bg-teal", on);
-      box.classList.toggle("text-white", on);
-      box.classList.toggle("border", !on);
-      box.classList.toggle("border-line", !on);
-      box.classList.toggle("bg-white", !on);
-      box.classList.toggle("text-transparent", !on);
-    }
-    dialog.querySelectorAll("[data-check]").forEach(function (button) {
-      button.addEventListener("click", function () {
-        paint(button, button.getAttribute("aria-pressed") !== "true");
-      });
-    });
-    dialog.querySelectorAll("[data-pack]").forEach(function (button) {
-      button.addEventListener("click", function () {
-        const on = button.getAttribute("aria-pressed") !== "true";
-        button.setAttribute("aria-pressed", on ? "true" : "false");
-        button.classList.toggle("bg-teal", on);
-        button.classList.toggle("text-white", on);
-        button.classList.toggle("border", !on);
-        button.classList.toggle("border-line", !on);
-        button.classList.toggle("bg-white", !on);
-        button.classList.toggle("text-ink", !on);
-        const count = button.querySelector("span:last-child");
-        count.classList.toggle("text-white", on);
-        count.classList.toggle("text-teal", !on);
-      });
-    });
-  })();
-</script>

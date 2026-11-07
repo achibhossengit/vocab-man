@@ -13,33 +13,33 @@
           <div class="flex flex-col gap-2">
             <p class="text-[13px] font-semibold">Example tone</p>
             <div class="grid grid-cols-2 gap-2">
-              <button type="button" data-tone class="h-8 rounded-lg border border-line text-xs font-semibold text-muted aria-pressed:border-transparent aria-pressed:bg-teal-soft aria-pressed:text-teal" aria-pressed="false">Funny</button>
-              <button type="button" data-tone class="h-8 rounded-lg border border-line text-xs font-semibold text-muted aria-pressed:border-transparent aria-pressed:bg-teal-soft aria-pressed:text-teal" aria-pressed="false">Professional</button>
-              <button type="button" data-tone class="h-8 rounded-lg border border-line text-xs font-semibold text-muted aria-pressed:border-transparent aria-pressed:bg-teal-soft aria-pressed:text-teal" aria-pressed="false">Casual</button>
-              <button type="button" data-tone class="h-8 rounded-lg border border-line text-xs font-semibold text-muted aria-pressed:border-transparent aria-pressed:bg-teal-soft aria-pressed:text-teal" aria-pressed="true">Balanced</button>
+              <button type="button" data-tone class="h-8 rounded-lg border border-line text-xs font-semibold text-muted aria-pressed:border-transparent aria-pressed:bg-teal-soft aria-pressed:text-teal" aria-pressed="{% if card_tone == 'Funny' %}true{% else %}false{% endif %}">Funny</button>
+              <button type="button" data-tone class="h-8 rounded-lg border border-line text-xs font-semibold text-muted aria-pressed:border-transparent aria-pressed:bg-teal-soft aria-pressed:text-teal" aria-pressed="{% if card_tone == 'Professional' %}true{% else %}false{% endif %}">Professional</button>
+              <button type="button" data-tone class="h-8 rounded-lg border border-line text-xs font-semibold text-muted aria-pressed:border-transparent aria-pressed:bg-teal-soft aria-pressed:text-teal" aria-pressed="{% if card_tone == 'Casual' %}true{% else %}false{% endif %}">Casual</button>
+              <button type="button" data-tone class="h-8 rounded-lg border border-line text-xs font-semibold text-muted aria-pressed:border-transparent aria-pressed:bg-teal-soft aria-pressed:text-teal" aria-pressed="{% if card_tone == 'Balanced' %}true{% else %}false{% endif %}">Balanced</button>
             </div>
           </div>
-          <div class="flex items-center justify-between" data-step>
+          <div class="flex items-center justify-between" data-step data-setting="synonyms">
             <p class="text-[13px] font-semibold">Max synonyms</p>
             <div class="flex items-center gap-2">
               <button type="button" data-dec class="grid size-7 place-items-center rounded-lg border border-line bg-white text-base font-medium leading-none" aria-label="Fewer synonyms">−</button>
-              <span data-value class="min-w-[9px] text-center text-sm font-semibold">3</span>
+              <span data-value class="min-w-[9px] text-center text-sm font-semibold">{{ max_synonyms }}</span>
               <button type="button" data-inc class="grid size-7 place-items-center rounded-lg border border-line bg-white text-base font-medium leading-none" aria-label="More synonyms">+</button>
             </div>
           </div>
-          <div class="flex items-center justify-between" data-step>
+          <div class="flex items-center justify-between" data-step data-setting="antonyms">
             <p class="text-[13px] font-semibold">Max antonyms</p>
             <div class="flex items-center gap-2">
               <button type="button" data-dec class="grid size-7 place-items-center rounded-lg border border-line bg-white text-base font-medium leading-none" aria-label="Fewer antonyms">−</button>
-              <span data-value class="min-w-[9px] text-center text-sm font-semibold">3</span>
+              <span data-value class="min-w-[9px] text-center text-sm font-semibold">{{ max_antonyms }}</span>
               <button type="button" data-inc class="grid size-7 place-items-center rounded-lg border border-line bg-white text-base font-medium leading-none" aria-label="More antonyms">+</button>
             </div>
           </div>
-          <div class="flex items-center justify-between" data-step>
+          <div class="flex items-center justify-between" data-step data-setting="examples">
             <p class="text-[13px] font-semibold">Max examples</p>
             <div class="flex items-center gap-2">
               <button type="button" data-dec class="grid size-7 place-items-center rounded-lg border border-line bg-white text-base font-medium leading-none" aria-label="Fewer examples">−</button>
-              <span data-value class="min-w-[9px] text-center text-sm font-semibold">2</span>
+              <span data-value class="min-w-[9px] text-center text-sm font-semibold">{{ max_examples }}</span>
               <button type="button" data-inc class="grid size-7 place-items-center rounded-lg border border-line bg-white text-base font-medium leading-none" aria-label="More examples">+</button>
             </div>
           </div>
@@ -48,23 +48,29 @@
     </div>
 
     <div id="search-shell" class="{% if stage != 'empty' %}overflow-hidden rounded-2xl border border-line bg-white{% endif %}">
-      <form id="search-form" action="{% url 'home' %}" method="get" class="{% if stage != 'empty' %}flex h-[68px] items-center gap-3 px-[18px]{% endif %}">
+      <form id="search-form" action="{% url 'home' %}" method="get" hx-get="{% url 'card' %}" hx-target="#search-results" hx-swap="innerHTML" hx-push-url="true" hx-sync="this:replace" class="{% if stage != 'empty' %}flex h-[68px] items-center gap-3 px-[18px]{% endif %}">
         <label id="search-label" class="{% if stage != 'empty' %}min-w-0 flex-1{% else %}block{% endif %}">
           <span class="sr-only">Make with Word or phrase</span>
           <input id="search-q" type="search" name="word" value="{{ field_value }}" placeholder="Enter any bangla or english word or pharase" autocomplete="off" hx-get="{% url 'suggest' %}" hx-trigger="input[this.value.trim().length > 0] changed delay:150ms" hx-target="#search-results" hx-swap="innerHTML" hx-sync="this:replace" class="{% if stage == 'empty' %}box-border h-[114px] w-full rounded-2xl border border-line bg-white px-[14px] pt-[14px] pb-[71px] text-[24px] font-normal leading-[1.2] placeholder:text-muted focus:border-teal{% else %}w-full bg-transparent text-[28px] font-medium leading-none{% endif %} text-ink outline-none {% if field_bn %}font-bn{% endif %} [&::-webkit-search-cancel-button]:appearance-none">
         </label>
         <a id="search-clear" href="{{ clear_url }}" class="text-[22px] leading-none text-muted {% if stage == 'empty' %}hidden{% endif %}" aria-label="Clear search">×</a>
+        <input type="hidden" id="card-tone" name="tone" value="{{ card_tone }}">
+        <input type="hidden" id="card-synonyms" name="synonyms" value="{{ max_synonyms }}">
+        <input type="hidden" id="card-antonyms" name="antonyms" value="{{ max_antonyms }}">
+        <input type="hidden" id="card-examples" name="examples" value="{{ max_examples }}">
+        <input type="hidden" id="card-new" name="new" value="">
       </form>
       <div id="search-results">
         {% if stage == "preview" %}
           {% include "core/partials/word_preview.html" %}
-        {% elif detail %}
-          {% include "core/partials/word_detail.html" %}
+        {% else %}
+          {% include "core/partials/word_card.html" %}
         {% endif %}
       </div>
+      <template id="card-skeleton">{% include "core/partials/word_skeleton.html" %}</template>
     </div>
 
-    {% if recent %}
+    <div data-workflow class="flex flex-col gap-4" {% if stage == "empty" %}hidden{% endif %}>
       <section class="flex flex-col gap-2">
         <div class="flex items-center justify-between px-1 pt-2">
           <h2 class="text-[13px] font-semibold text-muted">Recent</h2>
@@ -89,9 +95,7 @@
           {% endfor %}
         </div>
       </section>
-    {% endif %}
 
-    {% if wordpacks %}
       <section id="wordpacks" class="flex flex-col gap-2">
         <div class="flex items-center justify-between px-1 pt-2">
           <h2 class="text-[13px] font-semibold text-muted">Wordpacks</h2>
@@ -109,9 +113,10 @@
           {% endfor %}
         </div>
       </section>
-    {% endif %}
+    </div>
 
-    {% if not user.is_authenticated and stage == "empty" %}
+    {% if not user.is_authenticated %}
+    <div id="guest-pitch" class="contents" {% if stage != "empty" %}hidden{% endif %}>
     <div class="flex h-[405px] flex-col overflow-hidden rounded-2xl bg-ink text-card">
       <div class="flex flex-1 flex-col items-center justify-center gap-4">
         <span class="grid size-16 place-items-center rounded-full bg-card pl-1 text-teal" aria-hidden="true">
@@ -197,11 +202,10 @@
         </div>
       </section>
     </section>
+    </div>
     {% endif %}
   </div>
-  {% if show_pack %}
-    {% include "core/partials/add_pack.html" %}
-  {% endif %}
+  <div id="pack-slot">{% if show_pack %}{% include "core/partials/add_pack.html" %}{% endif %}</div>
   <script>
     (function () {
       const input = document.getElementById("search-q");
@@ -223,26 +227,232 @@
         if (!active) results.innerHTML = "";
       }
 
-      const loadedWord = new URLSearchParams(window.location.search).get("word");
-      const openedFromSearch = window.location.search.length > 0;
+      let selectedWord = new URLSearchParams(window.location.search).get("word") || "";
+      let requestKind = "suggest";
+      const skeleton = document.getElementById("card-skeleton");
+      const fresh = document.getElementById("card-new");
+
+      function showWorkflow(on) {
+        document.querySelectorAll("[data-workflow]").forEach(function (section) {
+          section.hidden = !on;
+        });
+        const pitch = document.getElementById("guest-pitch");
+        if (pitch) pitch.hidden = on;
+      }
+
+      function showSkeleton() {
+        setActive(true);
+        results.replaceChildren(skeleton.content.cloneNode(true));
+        results.setAttribute("aria-busy", "true");
+      }
+
+      function resetHome() {
+        if (document.getElementById("add-pack")) closePack(false);
+        input.value = "";
+        setActive(false);
+        results.innerHTML = "";
+        selectedWord = "";
+        requestKind = "suggest";
+        showWorkflow(false);
+        if (window.location.search) history.pushState(null, "", clear.getAttribute("href"));
+        input.focus();
+      }
 
       input.addEventListener("input", function () {
         const value = input.value.trim();
         setActive(value.length > 0);
-        if (!value && openedFromSearch) {
-          window.location.assign(clear.getAttribute("href"));
+        if (!value && (window.location.search || document.getElementById("add-pack"))) {
+          resetHome();
           return;
         }
-        if (loadedWord && value !== loadedWord && window.location.search) {
+        if (selectedWord && value !== selectedWord && window.location.search) {
           history.replaceState(null, "", window.location.pathname);
           results.innerHTML = "";
+          selectedWord = "";
+          requestKind = "suggest";
+          showWorkflow(false);
         }
       });
+      clear.addEventListener("click", function (event) {
+        event.preventDefault();
+        resetHome();
+      });
+      const brand = document.getElementById("brand-home");
+      if (brand) {
+        brand.addEventListener("click", function (event) {
+          if (new URL(brand.href, window.location.origin).pathname !== window.location.pathname) return;
+          event.preventDefault();
+          resetHome();
+        });
+      }
       form.addEventListener("submit", function (event) {
-        if (!input.value.trim()) event.preventDefault();
+        if (!input.value.trim()) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          return;
+        }
+        fresh.value = event.submitter && event.submitter.hasAttribute("data-refresh") ? "1" : "";
+      });
+      results.addEventListener("click", function (event) {
+        const link = event.target.closest("[data-suggestion]");
+        if (!link) return;
+        event.preventDefault();
+        input.value = link.textContent.trim();
+        form.requestSubmit();
+      });
+      const packSlot = document.getElementById("pack-slot");
+      let packLock = null;
+
+      function closePack(push) {
+        const dialog = document.getElementById("add-pack");
+        const back = dialog ? dialog.dataset.selected : "";
+        if (packLock) {
+          window.removeEventListener("wheel", packLock.blockPageScroll);
+          window.removeEventListener("touchmove", packLock.blockPageScroll);
+          window.removeEventListener("keydown", packLock.blockKeys);
+          const scrollY = packLock.scrollY;
+          packLock = null;
+          document.documentElement.style.overflow = "";
+          document.body.style.overflow = "";
+          document.body.style.position = "";
+          document.body.style.top = "";
+          document.body.style.left = "";
+          document.body.style.right = "";
+          document.body.style.width = "";
+          window.scrollTo(0, scrollY);
+        }
+        if (packSlot) packSlot.innerHTML = "";
+        if (push && back) history.pushState(null, "", back);
+      }
+
+      function openPack() {
+        const dialog = document.getElementById("add-pack");
+        if (!dialog || dialog.dataset.ready === "true") return;
+        dialog.dataset.ready = "true";
+        const panel = dialog.querySelector("[role=dialog]");
+        const scrollY = window.scrollY;
+        document.documentElement.style.overflow = "hidden";
+        document.body.style.overflow = "hidden";
+        document.body.style.position = "fixed";
+        document.body.style.top = "-" + scrollY + "px";
+        document.body.style.left = "0";
+        document.body.style.right = "0";
+        document.body.style.width = "100%";
+        function blockPageScroll(event) {
+          if (panel.contains(event.target) && panel.scrollHeight > panel.clientHeight + 1) return;
+          event.preventDefault();
+        }
+        function blockKeys(event) {
+          if (event.key === "Escape") {
+            closePack(true);
+            return;
+          }
+          const keys = [" ", "PageUp", "PageDown", "ArrowUp", "ArrowDown", "Home", "End"];
+          const tag = event.target.tagName;
+          if ((tag === "BUTTON" || tag === "A" || tag === "INPUT") && event.key === " ") return;
+          if (keys.indexOf(event.key) !== -1) event.preventDefault();
+        }
+        window.addEventListener("wheel", blockPageScroll, { passive: false });
+        window.addEventListener("touchmove", blockPageScroll, { passive: false });
+        window.addEventListener("keydown", blockKeys);
+        packLock = { scrollY: scrollY, blockPageScroll: blockPageScroll, blockKeys: blockKeys };
+        dialog.addEventListener("click", function (event) {
+          if (event.target === dialog) closePack(true);
+        });
+        panel.addEventListener("click", function (event) {
+          if (event.target.closest("[data-close-pack]")) {
+            closePack(true);
+            return;
+          }
+          event.stopPropagation();
+        });
+        function paint(button, on) {
+          const box = button.querySelector("[data-box]");
+          button.setAttribute("aria-pressed", on ? "true" : "false");
+          box.classList.toggle("bg-teal", on);
+          box.classList.toggle("text-white", on);
+          box.classList.toggle("border", !on);
+          box.classList.toggle("border-line", !on);
+          box.classList.toggle("bg-white", !on);
+          box.classList.toggle("text-transparent", !on);
+        }
+        dialog.querySelectorAll("[data-check]").forEach(function (button) {
+          button.addEventListener("click", function () {
+            paint(button, button.getAttribute("aria-pressed") !== "true");
+          });
+        });
+        dialog.querySelectorAll("[data-pack]").forEach(function (button) {
+          button.addEventListener("click", function () {
+            const on = button.getAttribute("aria-pressed") !== "true";
+            button.setAttribute("aria-pressed", on ? "true" : "false");
+            button.classList.toggle("bg-teal", on);
+            button.classList.toggle("text-white", on);
+            button.classList.toggle("border", !on);
+            button.classList.toggle("border-line", !on);
+            button.classList.toggle("bg-white", !on);
+            button.classList.toggle("text-ink", !on);
+            const count = button.querySelector("span:last-child");
+            count.classList.toggle("text-white", on);
+            count.classList.toggle("text-teal", !on);
+          });
+        });
+        const close = dialog.querySelector("[data-close-pack]");
+        if (close) close.focus();
+      }
+
+      document.addEventListener("click", function (event) {
+        if (event.target.closest("[data-close-pack]")) closePack(true);
+      });
+
+      document.body.addEventListener("htmx:beforeRequest", function (event) {
+        const elt = event.detail.elt;
+        if (elt === form || (elt && elt.hasAttribute("data-save-card"))) {
+          event.detail.xhr.kind = "card";
+          requestKind = "card";
+          if (elt === form) showSkeleton();
+          if (elt && elt.hasAttribute("data-save-card")) closePack(false);
+          return;
+        }
+        if (elt && elt.hasAttribute("data-open-pack")) {
+          event.detail.xhr.kind = "pack";
+          return;
+        }
+        event.detail.xhr.kind = "suggest";
+        requestKind = "suggest";
+      });
+      document.body.addEventListener("htmx:beforeSwap", function (event) {
+        if (event.detail.target === results && event.detail.xhr.kind !== requestKind) {
+          event.preventDefault();
+        }
       });
       document.body.addEventListener("htmx:afterSwap", function (event) {
-        if (event.detail.target === results && !input.value.trim()) results.innerHTML = "";
+        if (event.detail.target === packSlot || (event.detail.xhr && event.detail.xhr.kind === "pack")) {
+          openPack();
+          return;
+        }
+        if (event.detail.target !== results) return;
+        results.removeAttribute("aria-busy");
+        fresh.value = "";
+        if (!input.value.trim()) {
+          results.innerHTML = "";
+          return;
+        }
+        if (event.detail.xhr.kind !== "card") return;
+        selectedWord = input.value.trim();
+        showWorkflow(true);
+        input.focus();
+        const end = input.value.length;
+        input.setSelectionRange(end, end);
+      });
+      function showCardError() {
+        results.innerHTML = '<div class="h-px bg-line"></div><p class="p-4 text-sm text-clay">Could not load this card. Try Refresh.</p>';
+        results.removeAttribute("aria-busy");
+      }
+      document.body.addEventListener("htmx:responseError", function (event) {
+        if (event.detail.elt === form) showCardError();
+      });
+      document.body.addEventListener("htmx:sendError", function (event) {
+        if (event.detail.elt === form) showCardError();
       });
 
       function suggestions() {
@@ -299,7 +509,8 @@
         }
       });
 
-      if (!document.getElementById("add-pack")) {
+      if (document.getElementById("add-pack")) openPack();
+      else {
         input.focus();
         const end = input.value.length;
         input.setSelectionRange(end, end);
@@ -330,25 +541,70 @@
         if (event.key === "Escape") setOpen(false);
       });
 
+      const toneInput = document.getElementById("card-tone");
+      const countInputs = {
+        synonyms: document.getElementById("card-synonyms"),
+        antonyms: document.getElementById("card-antonyms"),
+        examples: document.getElementById("card-examples"),
+      };
+
+      function saveSettings() {
+        sessionStorage.setItem("vocab-card-settings", JSON.stringify({
+          tone: toneInput.value,
+          synonyms: countInputs.synonyms.value,
+          antonyms: countInputs.antonyms.value,
+          examples: countInputs.examples.value,
+        }));
+      }
+
+      function applySettings(settings) {
+        panel.querySelectorAll("[data-tone]").forEach(function (tone) {
+          tone.setAttribute("aria-pressed", tone.textContent.trim() === settings.tone ? "true" : "false");
+        });
+        toneInput.value = settings.tone;
+        Object.keys(countInputs).forEach(function (name) {
+          const control = panel.querySelector('[data-setting="' + name + '"]');
+          if (!control || settings[name] == null) return;
+          control.querySelector("[data-value]").textContent = String(settings[name]);
+          countInputs[name].value = String(settings[name]);
+        });
+      }
+
       panel.querySelectorAll("[data-tone]").forEach(function (tone) {
         tone.addEventListener("click", function () {
           panel.querySelectorAll("[data-tone]").forEach(function (other) {
             other.setAttribute("aria-pressed", other === tone ? "true" : "false");
           });
+          toneInput.value = tone.textContent.trim();
+          saveSettings();
         });
       });
 
       panel.querySelectorAll("[data-step]").forEach(function (control) {
         const value = control.querySelector("[data-value]");
+        const input = countInputs[control.getAttribute("data-setting")];
+        function setCount(next) {
+          value.textContent = String(next);
+          input.value = String(next);
+          saveSettings();
+        }
         control.querySelector("[data-dec]").addEventListener("click", function () {
           const next = Number(value.textContent) - 1;
-          if (next >= 0) value.textContent = String(next);
+          if (next >= 0) setCount(next);
         });
         control.querySelector("[data-inc]").addEventListener("click", function () {
           const next = Number(value.textContent) + 1;
-          if (next <= 10) value.textContent = String(next);
+          if (next <= 10) setCount(next);
         });
       });
+
+      if (!new URLSearchParams(window.location.search).has("tone")) {
+        const saved = sessionStorage.getItem("vocab-card-settings");
+        if (saved) {
+          try { applySettings(JSON.parse(saved)); } catch (error) { /* keep the defaults */ }
+        }
+      }
+      saveSettings();
     })();
   </script>
 {% endblock %}
