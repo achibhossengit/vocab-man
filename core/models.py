@@ -40,3 +40,90 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.email
+
+
+class WordLan(models.TextChoices):
+    EN = "en", "English"
+    BN = "bn", "Bangla"
+    AR = "ar", "Arabic"
+
+
+class WordProfile(models.Model):
+    Lan = WordLan
+
+    lan = models.CharField(max_length=16, choices=Lan.choices)
+    word = models.CharField(max_length=255)
+    pos = models.CharField(max_length=64)
+    definition = models.TextField()
+    example = models.TextField()
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                models.functions.Lower("lan"),
+                models.functions.Lower("word"),
+                models.functions.Lower("pos"),
+                name="unique_word_profile_lan_word_pos",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(lan__in=WordLan.values),
+                name="word_profile_lan_known",
+            ),
+        ]
+        indexes = [
+            models.Index(fields=["lan", "word"], name="word_profile_lan_word"),
+        ]
+
+    def save(self, *args, **kwargs):
+        self.lan = self.lan.strip().lower()
+        self.word = " ".join(self.word.split())
+        self.pos = " ".join(self.pos.split())
+        if self.pos.isascii():
+            self.pos = self.pos.lower()
+        self.definition = " ".join(self.definition.split())
+        self.example = " ".join(self.example.split())
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.word} ({self.lan}, {self.pos})"
+
+
+class WordRelation(models.Model):
+    class Kind(models.TextChoices):
+        SYNONYM = "syn", "synonym"
+        ANTONYM = "ant", "antonym"
+
+    source = models.ForeignKey(
+        WordProfile,
+        on_delete=models.CASCADE,
+        related_name="relations_as_source",
+    )
+    target = models.ForeignKey(
+        WordProfile,
+        on_delete=models.CASCADE,
+        related_name="relations_as_target",
+    )
+    relation = models.CharField(max_length=16, choices=Kind.choices)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["source", "target", "relation"],
+                name="unique_word_relation",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(source__lt=models.F("target")),
+                name="word_relation_source_before_target",
+            ),
+        ]
+        indexes = [
+            models.Index(fields=["target", "relation"], name="word_relation_target"),
+        ]
+
+    def save(self, *args, **kwargs):
+        if self.source_id and self.target_id and self.source_id > self.target_id:
+            self.source_id, self.target_id = self.target_id, self.source_id
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.source_id} {self.relation} {self.target_id}"

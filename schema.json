@@ -1,0 +1,48 @@
+{
+  "id": 2,
+  "pair": ["en", "bn"],
+  "pos": ["Noun"],
+  "words": [
+    {
+      "en": "solidarity",
+      "bn": "সংহতি",
+      "examples": {
+        "en": "The workers demonstrated solidarity during the protest.",
+        "bn": "শ্রমিকরা তাদের অধিকার আদায়ে সংহতি প্রকাশ করেছে।"
+      }
+    },
+    {
+      "en": "unity",
+      "bn": "ঐক্য",
+      "examples": {
+        "en": "Unity among citizens is essential for national development.",
+        "bn": "জাতীয় সংকটে জনগণের মধ্যে ঐক্য গড়ে উঠেছিল।"
+      }
+    },
+    {
+      "en": "togetherness",
+      "bn": "একতা",
+      "examples": {
+        "en": "Family togetherness plays an important role in emotional well-being.",
+        "bn": "পরিবারের একতা সমাজের স্থিতিশীলতায় ভূমিকা রাখে।"
+      }
+    },
+    {
+      "en": "support",
+      "bn": "সমর্থন",
+      "examples": {
+        "en": "The organization provides financial support to vulnerable families.",
+        "bn": "দুর্যোগের সময় ক্ষতিগ্রস্ত পরিবারগুলো সরকারি সমর্থন পেয়েছে।"
+      }
+    },
+    {
+      "en": "cooperation",
+      "bn": "সহযোগিতা",
+      "examples": {
+        "en": "International cooperation is necessary to address global challenges.",
+        "bn": "দেশের উন্নয়নে আন্তর্জাতিক সহযোগিতা গুরুত্বপূর্ণ।"
+      }
+    }
+  ],
+  "antonyms": [12, 15]
+}
