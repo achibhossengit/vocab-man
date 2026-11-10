@@ -100,15 +100,71 @@ def _other(profile, relation):
     return relation.source
 
 
-def _related(profile, kind, lan):
-    words = []
+def _lexical(profile, kind):
+    found = []
+    seen = set()
     for relation in _links(profile):
         if relation.relation != kind:
             continue
         other = _other(profile, relation)
-        if other.lan == lan:
-            words.append(other.word)
-    return words
+        if other.lan != profile.lan or other.id in seen:
+            continue
+        seen.add(other.id)
+        found.append(other)
+    return found
+
+
+def _unique(words):
+    found = []
+    seen = set()
+    for word in words:
+        key = word.casefold()
+        if key in seen:
+            continue
+        seen.add(key)
+        found.append(word)
+    return found
+
+
+def _antonym_hubs(profile):
+    hubs = []
+    for hub in _lexical(profile, WordRelation.Kind.ANTONYM):
+        siblings = _lexical(hub, WordRelation.Kind.ANTONYM)
+        if len(siblings) > 1 and any(item.id == profile.id for item in siblings):
+            hubs.append(hub)
+    return hubs
+
+
+def _grouped(profile, synonym_limit, antonym_limit):
+    direct = _lexical(profile, WordRelation.Kind.SYNONYM)
+    hubs = _antonym_hubs(profile) if not direct else []
+    if hubs:
+        synonyms = []
+        antonyms = []
+        for hub in hubs:
+            shown_antonyms = _lexical(hub, WordRelation.Kind.ANTONYM)[:antonym_limit]
+            if any(item.id == profile.id for item in shown_antonyms):
+                synonyms.extend(item.word for item in shown_antonyms if item.id != profile.id)
+            else:
+                synonyms.extend(
+                    item.word for item in _lexical(hub, WordRelation.Kind.ANTONYM) if item.id != profile.id
+                )
+            antonyms.extend(item.word for item in _lexical(hub, WordRelation.Kind.SYNONYM)[:synonym_limit])
+            antonyms.append(hub.word)
+        return _unique(synonyms), _unique(antonyms), synonym_limit + len(hubs)
+
+    if len(direct) == 1:
+        hub = direct[0]
+        synonyms = [
+            hub.word if item.id == profile.id else item.word
+            for item in _lexical(hub, WordRelation.Kind.SYNONYM)
+        ]
+    else:
+        synonyms = [item.word for item in direct]
+    antonyms = _lexical(profile, WordRelation.Kind.ANTONYM)
+    if not antonyms and len(direct) == 1:
+        antonyms = _lexical(direct[0], WordRelation.Kind.ANTONYM)
+    return _unique(synonyms), [item.word for item in antonyms], antonym_limit
 
 
 def _translation(profile, other_lan):
@@ -128,6 +184,7 @@ def _side(source_profile, target_profile, lan):
 def card_from_profiles(source_profile, target_profile, options):
     learned = _side(source_profile, target_profile, options["learn"])
     example = _clean(learned.example)
+    synonyms, antonyms, antonym_limit = _grouped(learned, options["synonyms"], options["antonyms"])
     return {
         "meaning": target_profile.word,
         "meaning_bn": target_profile.lan == WordProfile.Lan.BN,
@@ -135,9 +192,9 @@ def card_from_profiles(source_profile, target_profile, options):
         "pos_bn": source_profile.lan == WordProfile.Lan.BN,
         "definition": learned.definition,
         "definition_bn": learned.lan == WordProfile.Lan.BN,
-        "synonyms": _related(learned, WordRelation.Kind.SYNONYM, learned.lan)[: options["synonyms"]],
+        "synonyms": synonyms[: options["synonyms"]],
         "synonyms_bn": learned.lan == WordProfile.Lan.BN,
-        "antonyms": _related(learned, WordRelation.Kind.ANTONYM, learned.lan)[: options["antonyms"]],
+        "antonyms": antonyms[:antonym_limit],
         "antonyms_bn": learned.lan == WordProfile.Lan.BN,
         "examples": [example][: options["examples"]] if example else [],
         "examples_bn": learned.lan == WordProfile.Lan.BN,
@@ -145,11 +202,12 @@ def card_from_profiles(source_profile, target_profile, options):
 
 
 def known_cluster(profile):
+    synonyms, antonyms, antonym_limit = _grouped(profile, STORE_LIMIT, STORE_LIMIT)
     return {
         "word": profile.word,
         "pos": profile.pos,
-        "synonyms": _related(profile, WordRelation.Kind.SYNONYM, profile.lan),
-        "antonyms": _related(profile, WordRelation.Kind.ANTONYM, profile.lan),
+        "synonyms": synonyms[:STORE_LIMIT],
+        "antonyms": antonyms[:antonym_limit],
     }
 
 
