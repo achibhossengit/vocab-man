@@ -5,8 +5,7 @@ from django.urls import reverse
 
 from .llm import LANGUAGES, LookupFailed, card_options
 from .placeholders import PACK_CHOICES, RECENT, WORDPACKS
-from .wiktionary import suggest_words
-from .words import lookup_word, split_pair, word_language
+from .words import lookup_word, split_pair, suggest_words, word_language
 
 
 def search_url(**params):

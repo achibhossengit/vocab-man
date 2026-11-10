@@ -1,5 +1,6 @@
 from django.db import IntegrityError, transaction
 from django.db.models import Q
+from django.db.models.functions import Lower
 
 from .llm import LANGUAGE_NAMES, LookupFailed, _prompt, generate_graph
 from .models import WordProfile, WordRelation
@@ -50,6 +51,34 @@ def _items(value):
     if not isinstance(value, list):
         return []
     return [item for item in value if isinstance(item, dict)][:STORE_LIMIT]
+
+
+def suggest_words(term, lan="en"):
+    term = _clean(term)
+    if not term or lan not in LANGUAGE_NAMES:
+        return []
+    exact = (
+        WordProfile.objects.filter(lan=lan, word__iexact=term)
+        .values_list("word", flat=True)
+        .first()
+    )
+    rows = (
+        WordProfile.objects.filter(lan=lan, word__istartswith=term)
+        .exclude(word__iexact=term)
+        .annotate(word_key=Lower("word"))
+        .order_by("word_key")
+        .values_list("word", "word_key")
+    )
+    words = [exact] if exact else []
+    seen = {term.casefold()} if exact else set()
+    for word, key in rows:
+        if key in seen:
+            continue
+        seen.add(key)
+        words.append(word)
+        if len(words) == 5:
+            break
+    return [{"word": word, "bn": lan == WordProfile.Lan.BN} for word in words]
 
 
 def find_profiles(lan, word):
