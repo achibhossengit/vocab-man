@@ -1,12 +1,12 @@
-import json
 from urllib.parse import urlencode
 
 from django.shortcuts import redirect, render
 from django.urls import reverse
 
-from .llm import LookupFailed, card_options, lookup_card
+from .llm import LANGUAGES, LookupFailed, card_options
 from .placeholders import PACK_CHOICES, RECENT, WORDPACKS
-from .wiktionary import is_bangla, suggest_words
+from .wiktionary import suggest_words
+from .words import lookup_word, split_pair, word_language
 
 
 def search_url(**params):
@@ -25,27 +25,17 @@ def card_state(request):
     card_error = ""
     card_params = {
         "word": word,
-        "tone": options["tone"],
-        "synonyms": options["synonyms"],
-        "antonyms": options["antonyms"],
-        "examples": options["examples"],
+        "pair": options["pair"],
     }
     selected_url = search_url(**card_params) if word else ""
     fresh = request.GET.get("new") == "1"
     if word:
-        cache_key = json.dumps([word, options], ensure_ascii=False, sort_keys=True)
-        cached = request.session.get("card_cache") or {}
-        if not fresh and cached.get("key") == cache_key:
-            detail = cached.get("card")
-        else:
-            try:
-                detail = lookup_card(word, options)
-            except LookupFailed as exc:
-                card_error = str(exc)
-            if detail:
-                request.session["card_cache"] = {"key": cache_key, "card": detail}
-            elif not card_error:
-                card_error = "Could not load this card."
+        try:
+            detail = lookup_word(word, options)
+        except LookupFailed as exc:
+            card_error = str(exc)
+        if not detail and not card_error:
+            card_error = "Not found."
 
     stage = "empty"
     if word and detail:
@@ -76,20 +66,24 @@ def home(request):
         return redirect(state["selected_url"])
     field_value = state["word"] or state["query"]
     options = state["options"]
+    known, learn = split_pair(options["pair"])
+    names = dict(LANGUAGES)
+    field_lan = word_language(field_value, known, learn) if field_value else known
+    suggest_lan = word_language(state["query"], known, learn) if state["query"] else known
     return render(request, "core/home.html", {
         "nav": "home",
         "query": state["query"],
         "word": state["word"],
         "stage": state["stage"],
         "field_value": field_value,
-        "field_bn": is_bangla(field_value),
-        "suggestions": suggest_words(state["query"]) if state["query"] and not state["word"] else [],
+        "field_bn": field_lan == "bn",
+        "card_pair": options["pair"],
+        "known_name": names[known],
+        "learn_name": names[learn],
+        "languages": [{"code": code, "name": name} for code, name in LANGUAGES],
+        "suggestions": suggest_words(state["query"], suggest_lan) if state["query"] and not state["word"] else [],
         "detail": state["detail"],
         "card_error": state["card_error"],
-        "card_tone": options["tone"],
-        "max_synonyms": options["synonyms"],
-        "max_antonyms": options["antonyms"],
-        "max_examples": options["examples"],
         "pack_choices": PACK_CHOICES,
         "recent": RECENT,
         "wordpacks": WORDPACKS,
@@ -119,7 +113,10 @@ def card(request):
 
 def suggest(request):
     query = (request.GET.get("q") or request.GET.get("word") or "").strip()
+    options = card_options(request.GET)
+    known, learn = split_pair(options["pair"])
     return render(request, "core/partials/word_preview.html", {
         "query": query,
-        "suggestions": suggest_words(query),
+        "card_pair": options["pair"],
+        "suggestions": suggest_words(query, word_language(query, known, learn)),
     })

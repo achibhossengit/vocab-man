@@ -3,7 +3,7 @@
   <ul>
     {% for suggestion in suggestions %}
       <li class="border-t border-line first:border-t-0">
-        <a href="{% url 'home' %}?q={{ query|urlencode }}&word={{ suggestion.word|urlencode }}" data-suggestion class="block px-[18px] py-2 text-base text-ink outline-none focus:outline-none {% if suggestion.word|lower == query|lower %}font-semibold{% else %}font-medium{% endif %} {% if suggestion.bn %}font-bn{% endif %}">{{ suggestion.word }}</a>
+        <a href="{% url 'home' %}?q={{ query|urlencode }}&word={{ suggestion.word|urlencode }}&pair={{ card_pair|urlencode }}" data-suggestion class="block px-[18px] py-2 text-base text-ink outline-none focus:outline-none {% if suggestion.word|lower == query|lower %}font-semibold{% else %}font-medium{% endif %} {% if suggestion.bn %}font-bn{% endif %}">{{ suggestion.word }}</a>
       </li>
     {% endfor %}
   </ul>

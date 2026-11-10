@@ -1,8 +1,11 @@
 <div class="h-px bg-line"></div>
 <div class="flex flex-col gap-2.5 p-4">
   <p class="text-[22px] font-semibold leading-none {% if detail.meaning_bn %}font-bn{% endif %}">{{ detail.meaning }}</p>
+  {% if detail.definition %}
+    <p class="text-sm text-muted {% if detail.definition_bn %}font-bn{% endif %}">{{ detail.definition }}</p>
+  {% endif %}
   {% if detail.pos %}
-    <p class="flex gap-4 text-[13px] font-semibold">
+    <p class="flex gap-4 text-[13px] font-semibold {% if detail.pos_bn %}font-bn{% endif %}">
       {% for item in detail.pos %}<span>{{ item }}</span>{% endfor %}
     </p>
   {% endif %}
@@ -11,7 +14,7 @@
     <ul class="flex flex-wrap gap-x-3.5 gap-y-2">
       {% for item in detail.synonyms %}
         <li>
-          <button type="button" data-check class="inline-flex items-center gap-3 text-[15px] font-medium" aria-pressed="true">
+          <button type="button" data-check class="inline-flex items-center gap-3 text-[15px] font-medium {% if detail.synonyms_bn %}font-bn{% endif %}" aria-pressed="true">
             <span data-box class="grid size-[22px] place-items-center rounded-md bg-teal text-xs font-bold text-white" aria-hidden="true">✓</span>
             {{ item }}
           </button>
@@ -24,7 +27,7 @@
     <ul class="flex flex-wrap gap-x-3.5 gap-y-2">
       {% for item in detail.antonyms %}
         <li>
-          <button type="button" data-check class="inline-flex items-center gap-3 text-[15px] font-medium" aria-pressed="true">
+          <button type="button" data-check class="inline-flex items-center gap-3 text-[15px] font-medium {% if detail.antonyms_bn %}font-bn{% endif %}" aria-pressed="true">
             <span data-box class="grid size-[22px] place-items-center rounded-md bg-teal text-xs font-bold text-white" aria-hidden="true">✓</span>
             {{ item }}
           </button>
@@ -37,7 +40,7 @@
     {% for example in detail.examples %}
       <button type="button" data-check class="flex items-start gap-3 text-left text-[15px] font-medium" aria-pressed="true">
         <span data-box class="grid size-[22px] shrink-0 place-items-center rounded-md bg-teal text-xs font-bold text-white" aria-hidden="true">✓</span>
-        <span>{{ example }}</span>
+        <span class="{% if detail.examples_bn %}font-bn{% endif %}">{{ example }}</span>
       </button>
     {% endfor %}
   {% endif %}

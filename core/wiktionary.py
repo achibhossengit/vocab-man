@@ -7,6 +7,7 @@ USER_AGENT = "vocab-man/1.0 (bilingual flashcard search)"
 HOSTS = {
     "bn": "bn.wiktionary.org",
     "en": "en.wiktionary.org",
+    "ar": "ar.wiktionary.org",
 }
 
 _lock = threading.Lock()
@@ -15,10 +16,6 @@ _connections = {}
 
 def is_bangla(text):
     return any("\u0980" <= char <= "\u09ff" for char in text)
-
-
-def _host_for(term):
-    return HOSTS["bn"] if is_bangla(term) else HOSTS["en"]
 
 
 def _read(host, path):
@@ -46,11 +43,11 @@ def _read(host, path):
         return body
 
 
-def suggest_words(term):
+def suggest_words(term, lan="en"):
     term = " ".join(term.split())
     if not term:
         return []
-    host = _host_for(term)
+    host = HOSTS.get(lan, HOSTS["en"])
     path = "/w/api.php?" + urlencode({
         "action": "opensearch",
         "format": "json",
@@ -76,7 +73,7 @@ def suggest_words(term):
         title = title.strip()
         if not title or ":" in title:
             continue
-        words.append({"word": title, "bn": is_bangla(title)})
+        words.append({"word": title, "bn": lan == "bn"})
         if len(words) == 5:
             break
     return words

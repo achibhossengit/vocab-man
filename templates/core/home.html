@@ -2,62 +2,34 @@
 
 {% block content %}
   <div class="mx-auto flex w-full max-w-[720px] flex-col gap-4 px-5 py-10 sm:px-0">
-    <div class="flex h-9 items-center">
-      <h1 class="text-[30px] font-semibold leading-none text-ink">Make with Word or phrase</h1>
-      <div id="search-settings" class="relative ml-auto">
-        <button type="button" id="search-settings-button" class="grid size-9 place-items-center text-[30px] font-medium leading-none text-ink" aria-label="Settings" aria-haspopup="dialog" aria-expanded="false" aria-controls="search-settings-panel">
-          <span aria-hidden="true">⚙</span>
+    <div class="flex h-9 items-center gap-4">
+      <h1 id="lang-bar" class="relative flex min-w-0 items-center gap-3 text-[22px] font-semibold leading-none text-ink">
+        <button type="button" data-lang-side="known" class="leading-none" aria-haspopup="menu" aria-expanded="false" aria-controls="lang-menu">
+          <span data-lang-label>{{ known_name }}</span>
         </button>
-        <div id="search-settings-panel" role="dialog" aria-label="Search settings" hidden class="absolute right-0 top-[calc(100%+8px)] z-20 flex w-[300px] max-w-[calc(100vw-2.5rem)] flex-col gap-3.5 rounded-2xl border border-line bg-white p-3.5 shadow-[0_8px_24px_rgb(28_25_21/0.14)]">
-          <p class="text-sm font-semibold">Search settings</p>
-          <div class="flex flex-col gap-2">
-            <p class="text-[13px] font-semibold">Example tone</p>
-            <div class="grid grid-cols-2 gap-2">
-              <button type="button" data-tone class="h-8 rounded-lg border border-line text-xs font-semibold text-muted aria-pressed:border-transparent aria-pressed:bg-teal-soft aria-pressed:text-teal" aria-pressed="{% if card_tone == 'Funny' %}true{% else %}false{% endif %}">Funny</button>
-              <button type="button" data-tone class="h-8 rounded-lg border border-line text-xs font-semibold text-muted aria-pressed:border-transparent aria-pressed:bg-teal-soft aria-pressed:text-teal" aria-pressed="{% if card_tone == 'Professional' %}true{% else %}false{% endif %}">Professional</button>
-              <button type="button" data-tone class="h-8 rounded-lg border border-line text-xs font-semibold text-muted aria-pressed:border-transparent aria-pressed:bg-teal-soft aria-pressed:text-teal" aria-pressed="{% if card_tone == 'Casual' %}true{% else %}false{% endif %}">Casual</button>
-              <button type="button" data-tone class="h-8 rounded-lg border border-line text-xs font-semibold text-muted aria-pressed:border-transparent aria-pressed:bg-teal-soft aria-pressed:text-teal" aria-pressed="{% if card_tone == 'Balanced' %}true{% else %}false{% endif %}">Balanced</button>
-            </div>
+        <button type="button" id="pair-swap" class="leading-none text-teal" aria-label="Swap languages">⇄</button>
+        <button type="button" data-lang-side="learn" class="leading-none" aria-haspopup="menu" aria-expanded="false" aria-controls="lang-menu">
+          <span data-lang-label>{{ learn_name }}</span>
+        </button>
+        <div id="lang-menu" hidden role="menu" class="absolute top-[calc(100%+10px)] z-30 w-[200px] rounded-2xl border border-line bg-white p-2 shadow-[0_8px_24px_rgb(28_25_21/0.12)]">
+          <div class="px-3 pb-2 pt-1.5">
+            <p id="lang-menu-title" class="text-sm font-semibold text-ink"></p>
+            <p id="lang-menu-note" class="mt-1 text-xs font-medium leading-4 text-muted"></p>
           </div>
-          <div class="flex items-center justify-between" data-step data-setting="synonyms">
-            <p class="text-[13px] font-semibold">Max synonyms</p>
-            <div class="flex items-center gap-2">
-              <button type="button" data-dec class="grid size-7 place-items-center rounded-lg border border-line bg-white text-base font-medium leading-none" aria-label="Fewer synonyms">−</button>
-              <span data-value class="min-w-[9px] text-center text-sm font-semibold">{{ max_synonyms }}</span>
-              <button type="button" data-inc class="grid size-7 place-items-center rounded-lg border border-line bg-white text-base font-medium leading-none" aria-label="More synonyms">+</button>
-            </div>
-          </div>
-          <div class="flex items-center justify-between" data-step data-setting="antonyms">
-            <p class="text-[13px] font-semibold">Max antonyms</p>
-            <div class="flex items-center gap-2">
-              <button type="button" data-dec class="grid size-7 place-items-center rounded-lg border border-line bg-white text-base font-medium leading-none" aria-label="Fewer antonyms">−</button>
-              <span data-value class="min-w-[9px] text-center text-sm font-semibold">{{ max_antonyms }}</span>
-              <button type="button" data-inc class="grid size-7 place-items-center rounded-lg border border-line bg-white text-base font-medium leading-none" aria-label="More antonyms">+</button>
-            </div>
-          </div>
-          <div class="flex items-center justify-between" data-step data-setting="examples">
-            <p class="text-[13px] font-semibold">Max examples</p>
-            <div class="flex items-center gap-2">
-              <button type="button" data-dec class="grid size-7 place-items-center rounded-lg border border-line bg-white text-base font-medium leading-none" aria-label="Fewer examples">−</button>
-              <span data-value class="min-w-[9px] text-center text-sm font-semibold">{{ max_examples }}</span>
-              <button type="button" data-inc class="grid size-7 place-items-center rounded-lg border border-line bg-white text-base font-medium leading-none" aria-label="More examples">+</button>
-            </div>
-          </div>
+          <div class="mx-2 h-px bg-line"></div>
+          <div id="lang-menu-options" class="mt-1.5 flex flex-col gap-0.5"></div>
         </div>
-      </div>
+      </h1>
     </div>
 
     <div id="search-shell" class="{% if stage != 'empty' %}overflow-hidden rounded-2xl border border-line bg-white{% endif %}">
       <form id="search-form" action="{% url 'home' %}" method="get" hx-get="{% url 'card' %}" hx-target="#search-results" hx-swap="innerHTML" hx-push-url="true" hx-sync="this:replace" class="{% if stage != 'empty' %}flex h-[68px] items-center gap-3 px-[18px]{% endif %}">
         <label id="search-label" class="{% if stage != 'empty' %}min-w-0 flex-1{% else %}block{% endif %}">
-          <span class="sr-only">Make with Word or phrase</span>
-          <input id="search-q" type="search" name="word" value="{{ field_value }}" placeholder="Enter any bangla or english word or pharase" autocomplete="off" hx-get="{% url 'suggest' %}" hx-trigger="input[this.value.trim().length > 0] changed delay:150ms" hx-target="#search-results" hx-swap="innerHTML" hx-sync="this:replace" class="{% if stage == 'empty' %}box-border h-[114px] w-full rounded-2xl border border-line bg-white px-[14px] pt-[14px] pb-[71px] text-[24px] font-normal leading-[1.2] placeholder:text-muted focus:border-teal{% else %}w-full bg-transparent text-[28px] font-medium leading-none{% endif %} text-ink outline-none {% if field_bn %}font-bn{% endif %} [&::-webkit-search-cancel-button]:appearance-none">
+          <span class="sr-only">Word or phrase</span>
+          <input id="search-q" type="search" name="word" value="{{ field_value }}" placeholder="Enter a word or a short phrase" autocomplete="off" hx-get="{% url 'suggest' %}" hx-include="#card-pair" hx-trigger="input[this.value.trim().length > 0] changed delay:150ms" hx-target="#search-results" hx-swap="innerHTML" hx-sync="this:replace" class="{% if stage == 'empty' %}box-border h-[114px] w-full rounded-2xl border border-line bg-white px-[14px] pt-[14px] pb-[71px] text-[24px] font-normal leading-[1.2] placeholder:text-muted focus:border-teal{% else %}w-full bg-transparent text-[28px] font-medium leading-none{% endif %} text-ink outline-none {% if field_bn %}font-bn{% endif %} [&::-webkit-search-cancel-button]:appearance-none">
         </label>
         <a id="search-clear" href="{{ clear_url }}" class="text-[22px] leading-none text-muted {% if stage == 'empty' %}hidden{% endif %}" aria-label="Clear search">×</a>
-        <input type="hidden" id="card-tone" name="tone" value="{{ card_tone }}">
-        <input type="hidden" id="card-synonyms" name="synonyms" value="{{ max_synonyms }}">
-        <input type="hidden" id="card-antonyms" name="antonyms" value="{{ max_antonyms }}">
-        <input type="hidden" id="card-examples" name="examples" value="{{ max_examples }}">
+        <input type="hidden" id="card-pair" name="pair" value="{{ card_pair }}">
         <input type="hidden" id="card-new" name="new" value="">
       </form>
       <div id="search-results">
@@ -137,7 +109,7 @@
     <section class="flex flex-col gap-7 pt-3">
       <div class="flex flex-col gap-2.5">
         <h1 class="text-[2rem] font-semibold leading-tight">A card for every word you look up.</h1>
-        <p class="text-base text-muted">Search in English or Bangla. Save one meaning, with an example and the words around it.</p>
+        <p class="text-base text-muted">Choose any two languages. Save one meaning, with an example and the words around it.</p>
       </div>
 
       <ol class="overflow-hidden rounded-2xl border border-line bg-card">
@@ -145,7 +117,7 @@
           <span class="w-7 shrink-0 text-[15px] font-semibold text-teal">01</span>
           <span>
             <span class="block text-[15px] font-semibold">Search</span>
-            <span class="mt-1 block text-sm text-muted">Type a word or a short phrase.</span>
+            <span class="mt-1 block text-sm text-muted">Type a word or a short phrase. Search in one language and read the meaning in the other, or type in the other language and choose the word that fits. Suggestions stay on words and short phrases. A full sentence is not a card.</span>
           </span>
         </li>
         <li class="border-t border-line px-5 py-4">
@@ -153,7 +125,7 @@
             <span class="w-7 shrink-0 text-[15px] font-semibold text-teal">02</span>
             <span>
               <span class="block text-[15px] font-semibold">Save</span>
-              <span class="mt-1 block text-sm text-muted">Keep the meaning, examples, synonyms, and antonyms on one card.</span>
+              <span class="mt-1 block text-sm text-muted">Keep the part of speech, meaning, examples, synonyms, and antonyms on one card. One entry is one card. Search that word again and the same card updates, instead of saving a second copy. The card shows the most relevant meaning.</span>
             </span>
           </div>
         </li>
@@ -162,30 +134,18 @@
             <span class="w-7 shrink-0 text-[15px] font-semibold text-teal">03</span>
             <span>
               <span class="block text-[15px] font-semibold">Practice</span>
-              <span class="mt-1 block text-sm text-muted">Flip the card. You choose what shows in English and what shows in Bangla.</span>
+              <span class="mt-1 block text-sm text-muted">Flip the card to practice. You choose the front and the back. A card can have two sides or three, and you can change that whenever you practice. Either language can sit on the front and the other on the back. Looking up a word does not need an account. Log in when you want the card saved.</span>
             </span>
           </div>
         </li>
       </ol>
 
-      <section class="flex flex-col gap-3">
-        <h2 class="text-[22px] font-semibold">How a word becomes a card</h2>
-        <div class="flex flex-col gap-3 text-base leading-6 text-muted">
-          <p>vocab-man is a bilingual flashcard for a word or a short phrase. Type in English and read the Bangla meaning, or type in Bangla and choose the English word that fits.</p>
-          <p>One entry is one card. Search that word again and the same card updates, instead of saving a second copy.</p>
-          <p>A card keeps the part of speech, meaning, example sentences, and the words around it. The example shows how the word is used. Synonyms and antonyms stay on that same card.</p>
-          <p>You choose the front and the back. A card can have two sides or three, and you can change that whenever you practice.</p>
-          <p>Suggestions stay on words and short phrases. A full sentence is not a card. The card shows the most relevant meaning.</p>
-          <p>Flip the card to practice. The English word can sit on the front and the Bangla meaning on the back, or the other way around. Looking up a word does not need an account. Log in when you want the card saved.</p>
-        </div>
-      </section>
-
       <section class="flex flex-col gap-2.5">
         <h2 class="text-[22px] font-semibold">Questions</h2>
         <div class="overflow-hidden rounded-2xl border border-line bg-card">
           <div class="px-5 py-4">
-            <h3 class="text-[15px] font-semibold">Can I search from Bangla to English?</h3>
-            <p class="mt-1 text-sm leading-5 text-muted">Yes. Type a Bangla word, pick one of the English words offered, and the card opens for that word.</p>
+            <h3 class="text-[15px] font-semibold">Can I search in either language?</h3>
+            <p class="mt-1 text-sm leading-5 text-muted">Yes. Type a word in one language, pick one of the words offered in the other, and the card opens for that word.</p>
           </div>
           <div class="border-t border-line px-5 py-4">
             <h3 class="text-[15px] font-semibold">Can a word have more than one meaning?</h3>
@@ -205,6 +165,7 @@
     </div>
     {% endif %}
   </div>
+  {{ languages|json_script:"language-list" }}
   <script>
     (function () {
       const input = document.getElementById("search-q");
@@ -220,8 +181,12 @@
         shell.className = active ? "overflow-hidden rounded-2xl border border-line bg-white" : "";
         form.className = active ? "flex h-[68px] items-center gap-3 px-[18px]" : "";
         label.className = active ? "min-w-0 flex-1" : "block";
-        const bangla = /[\u0980-\u09FF]/.test(input.value);
-        input.className = (active ? activeClass : emptyClass) + (bangla ? " font-bn" : "");
+        const text = input.value;
+        const known = (document.getElementById("card-pair").value || "en-bn").split("-")[0];
+        const bangla = /[\u0980-\u09FF]/.test(text);
+        const other = /[A-Za-z\u0600-\u06FF]/.test(text);
+        const fieldBangla = bangla ? true : other ? false : known === "bn";
+        input.className = (active ? activeClass : emptyClass) + (fieldBangla ? " font-bn" : "");
         clear.classList.toggle("hidden", !active);
         if (!active) results.innerHTML = "";
       }
@@ -432,91 +397,151 @@
   </script>
   <script>
     (function () {
-      const root = document.getElementById("search-settings");
-      const button = document.getElementById("search-settings-button");
-      const panel = document.getElementById("search-settings-panel");
+      const searchInput = document.getElementById("search-q");
+      const searchForm = document.getElementById("search-form");
+      const pairInput = document.getElementById("card-pair");
+      const languages = JSON.parse(document.getElementById("language-list").textContent);
+      const languageNames = {};
+      languages.forEach(function (language) { languageNames[language.code] = language.name; });
+      const knownBtn = document.querySelector("[data-lang-side='known']");
+      const learnBtn = document.querySelector("[data-lang-side='learn']");
+      const langMenu = document.getElementById("lang-menu");
+      const langMenuTitle = document.getElementById("lang-menu-title");
+      const langMenuNote = document.getElementById("lang-menu-note");
+      const langMenuOptions = document.getElementById("lang-menu-options");
+      const optionClass = "flex h-10 w-full items-center rounded-lg px-3 text-left text-[15px] font-medium text-ink hover:bg-paper";
 
-      function setOpen(open) {
-        button.setAttribute("aria-expanded", open ? "true" : "false");
-        panel.hidden = !open;
+      function splitPair(pair) {
+        const parts = String(pair || "").split("-");
+        if (parts.length !== 2 || !languageNames[parts[0]] || !languageNames[parts[1]] || parts[0] === parts[1]) {
+          return ["en", "bn"];
+        }
+        return parts;
       }
 
-      button.addEventListener("click", function (event) {
-        event.stopPropagation();
-        setOpen(button.getAttribute("aria-expanded") !== "true");
-      });
+      function fieldBangla(parts) {
+        const text = searchInput.value;
+        const bangla = /[\u0980-\u09FF]/.test(text);
+        const other = /[A-Za-z\u0600-\u06FF]/.test(text);
+        if (bangla) return true;
+        if (other) return false;
+        return parts[0] === "bn";
+      }
 
-      document.addEventListener("click", function (event) {
-        if (!root.contains(event.target)) setOpen(false);
-      });
+      function paint() {
+        const parts = splitPair(pairInput.value);
+        pairInput.value = parts.join("-");
+        knownBtn.querySelector("[data-lang-label]").textContent = languageNames[parts[0]];
+        learnBtn.querySelector("[data-lang-label]").textContent = languageNames[parts[1]];
+        searchInput.classList.toggle("font-bn", fieldBangla(parts));
+      }
 
-      document.addEventListener("keydown", function (event) {
-        if (event.key === "Escape") setOpen(false);
-      });
-
-      const toneInput = document.getElementById("card-tone");
-      const countInputs = {
-        synonyms: document.getElementById("card-synonyms"),
-        antonyms: document.getElementById("card-antonyms"),
-        examples: document.getElementById("card-examples"),
-      };
+      function closeLangMenu() {
+        langMenu.hidden = true;
+        knownBtn.setAttribute("aria-expanded", "false");
+        learnBtn.setAttribute("aria-expanded", "false");
+      }
 
       function saveSettings() {
-        sessionStorage.setItem("vocab-card-settings", JSON.stringify({
-          tone: toneInput.value,
-          synonyms: countInputs.synonyms.value,
-          antonyms: countInputs.antonyms.value,
-          examples: countInputs.examples.value,
-        }));
+        sessionStorage.setItem("vocab-card-settings", JSON.stringify({ pair: pairInput.value }));
       }
 
-      function applySettings(settings) {
-        panel.querySelectorAll("[data-tone]").forEach(function (tone) {
-          tone.setAttribute("aria-pressed", tone.textContent.trim() === settings.tone ? "true" : "false");
-        });
-        toneInput.value = settings.tone;
-        Object.keys(countInputs).forEach(function (name) {
-          const control = panel.querySelector('[data-setting="' + name + '"]');
-          if (!control || settings[name] == null) return;
-          control.querySelector("[data-value]").textContent = String(settings[name]);
-          countInputs[name].value = String(settings[name]);
-        });
+      function refreshCard() {
+        saveSettings();
+        if (searchInput.value.trim()) searchForm.requestSubmit();
       }
 
-      panel.querySelectorAll("[data-tone]").forEach(function (tone) {
-        tone.addEventListener("click", function () {
-          panel.querySelectorAll("[data-tone]").forEach(function (other) {
-            other.setAttribute("aria-pressed", other === tone ? "true" : "false");
-          });
-          toneInput.value = tone.textContent.trim();
-          saveSettings();
+      function chooseLanguage(side, code) {
+        const parts = splitPair(pairInput.value);
+        let known = parts[0];
+        let learn = parts[1];
+        if (side === "known" && code === learn) {
+          learn = known;
+          known = code;
+        } else if (side === "learn" && code === known) {
+          known = learn;
+          learn = code;
+        } else if (side === "known") {
+          known = code;
+        } else {
+          learn = code;
+        }
+        if (known === learn) return;
+        pairInput.value = known + "-" + learn;
+        paint();
+        closeLangMenu();
+        refreshCard();
+      }
+
+      function openLangMenu(side) {
+        if (!langMenu.hidden && langMenu.dataset.side === side) {
+          closeLangMenu();
+          return;
+        }
+        const parts = splitPair(pairInput.value);
+        const current = side === "known" ? parts[0] : parts[1];
+        langMenuTitle.textContent = side === "known" ? "Known language" : "Learning language";
+        langMenuNote.textContent = side === "known" ? "Language you know" : "Language you want to learn";
+        langMenuOptions.replaceChildren();
+        languages.forEach(function (language) {
+          if (language.code === current) return;
+          const choice = document.createElement("button");
+          choice.type = "button";
+          choice.setAttribute("role", "menuitem");
+          choice.setAttribute("data-lang", language.code);
+          choice.className = optionClass;
+          choice.textContent = language.name;
+          langMenuOptions.appendChild(choice);
         });
+        const anchor = side === "known" ? knownBtn : learnBtn;
+        const bar = document.getElementById("lang-bar");
+        langMenu.dataset.side = side;
+        langMenu.hidden = false;
+        const room = bar.parentElement.clientWidth;
+        const overflow = anchor.offsetLeft + langMenu.offsetWidth - room;
+        langMenu.style.left = (overflow > 0 ? Math.max(0, anchor.offsetLeft - overflow) : anchor.offsetLeft) + "px";
+        knownBtn.setAttribute("aria-expanded", side === "known" ? "true" : "false");
+        learnBtn.setAttribute("aria-expanded", side === "learn" ? "true" : "false");
+      }
+
+      knownBtn.addEventListener("click", function (event) {
+        event.stopPropagation();
+        openLangMenu("known");
+      });
+      learnBtn.addEventListener("click", function (event) {
+        event.stopPropagation();
+        openLangMenu("learn");
+      });
+      document.getElementById("pair-swap").addEventListener("click", function (event) {
+        event.stopPropagation();
+        const parts = splitPair(pairInput.value);
+        pairInput.value = parts[1] + "-" + parts[0];
+        paint();
+        closeLangMenu();
+        refreshCard();
+      });
+      langMenu.addEventListener("click", function (event) {
+        event.stopPropagation();
+        const choice = event.target.closest("[data-lang]");
+        if (!choice) return;
+        chooseLanguage(langMenu.dataset.side, choice.getAttribute("data-lang"));
+      });
+      document.addEventListener("click", function (event) {
+        if (!document.getElementById("lang-bar").contains(event.target)) closeLangMenu();
+      });
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") closeLangMenu();
       });
 
-      panel.querySelectorAll("[data-step]").forEach(function (control) {
-        const value = control.querySelector("[data-value]");
-        const input = countInputs[control.getAttribute("data-setting")];
-        function setCount(next) {
-          value.textContent = String(next);
-          input.value = String(next);
-          saveSettings();
-        }
-        control.querySelector("[data-dec]").addEventListener("click", function () {
-          const next = Number(value.textContent) - 1;
-          if (next >= 0) setCount(next);
-        });
-        control.querySelector("[data-inc]").addEventListener("click", function () {
-          const next = Number(value.textContent) + 1;
-          if (next <= 10) setCount(next);
-        });
-      });
-
-      if (!new URLSearchParams(window.location.search).has("tone")) {
-        const saved = sessionStorage.getItem("vocab-card-settings");
-        if (saved) {
-          try { applySettings(JSON.parse(saved)); } catch (error) { /* keep the defaults */ }
-        }
+      const params = new URLSearchParams(window.location.search);
+      const saved = sessionStorage.getItem("vocab-card-settings");
+      if (saved && !params.has("pair")) {
+        try {
+          const settings = JSON.parse(saved);
+          if (settings.pair) pairInput.value = settings.pair;
+        } catch (error) { /* keep the defaults */ }
       }
+      paint();
       saveSettings();
     })();
   </script>

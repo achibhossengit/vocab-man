@@ -5,15 +5,7 @@ from urllib.request import Request, urlopen
 
 from django.conf import settings
 
-from .wiktionary import is_bangla
-
 TONES = ("Funny", "Professional", "Casual", "Balanced")
-TONE_NOTES = {
-    "Funny": "light and playful, still clear",
-    "Professional": "formal and precise",
-    "Casual": "everyday and conversational",
-    "Balanced": "plain and natural",
-}
 
 
 class LookupFailed(Exception):
@@ -44,74 +36,52 @@ def card_options(params):
             return default
         return max(0, min(value, 10))
 
+    raw_pair = params.get("pair", "en-bn").strip().split("-", 1)
+    if (
+        len(raw_pair) == 2
+        and raw_pair[0] in LANGUAGE_NAMES
+        and raw_pair[1] in LANGUAGE_NAMES
+        and raw_pair[0] != raw_pair[1]
+    ):
+        pair = f"{raw_pair[0]}-{raw_pair[1]}"
+    else:
+        pair = "en-bn"
+    known, learn = pair.split("-", 1)
+
     return {
         "tone": tone,
+        "pair": pair,
+        "known": known,
+        "learn": learn,
         "synonyms": count("synonyms", 3),
         "antonyms": count("antonyms", 3),
         "examples": count("examples", 2),
     }
 
 
-def _strings(value, limit):
-    if not isinstance(value, list):
-        return []
-    items = []
-    for item in value:
-        if not isinstance(item, str):
-            continue
-        item = " ".join(item.split())
-        if not item or is_bangla(item):
-            continue
-        items.append(item)
-        if len(items) == limit:
-            break
-    return items
-
-
-def _text(value):
-    if not isinstance(value, str):
-        return ""
-    return " ".join(value.split())
-
-
-def present_card(word, payload, options):
-    if not isinstance(payload, dict):
-        return None
-    english = _text(payload.get("en"))
-    bangla = _text(payload.get("bn"))
-    if is_bangla(word):
-        meaning, meaning_bn = english, False
-    else:
-        meaning, meaning_bn = bangla, True
-    if not meaning or not english or not bangla:
-        return None
-    return {
-        "en": english,
-        "bn": bangla,
-        "meaning": meaning,
-        "meaning_bn": meaning_bn,
-        "pos": _strings(payload.get("pos"), 4),
-        "synonyms": _strings(payload.get("synonyms"), options["synonyms"]),
-        "antonyms": _strings(payload.get("antonyms"), options["antonyms"]),
-        "examples": _strings(payload.get("examples"), options["examples"]),
-    }
-
-
-def _prompt(word, options):
-    tone = TONE_NOTES[options["tone"]]
-    return (
-        "Build one flashcard for this dictionary headword.\n"
-        f"Headword: {word}\n"
-        "Return JSON with exactly these keys: en, bn, pos, synonyms, antonyms, examples.\n"
-        "en is the English word or short phrase. bn is the Bangla word or short phrase in Bengali script.\n"
-        "pos, synonyms, antonyms, and examples are always English, never Bangla.\n"
-        "pos is a list of parts of speech such as Noun, Verb, Adjective, Adverb, or Phrase.\n"
-        f"synonyms: at most {options['synonyms']} English synonyms.\n"
-        f"antonyms: at most {options['antonyms']} English antonyms.\n"
-        f"examples: at most {options['examples']} English sentences that use the English word. Tone: {tone}.\n"
-        "If a list limit is 0, return an empty list for that key.\n"
-        "Use a real translation. If you cannot, return empty strings and empty lists."
-    )
+def _prompt(word, source_lan, target_lan, known):
+    source_name = LANGUAGE_NAMES[source_lan]
+    target_name = LANGUAGE_NAMES[target_lan]
+    lines = [
+        f"The looked-up word is in {source_name}.\nLooked-up word: {word}\n",
+        f"source.lan is {source_lan} ({source_name}). source.word is exactly the looked-up word.\n",
+        f"target.lan is {target_lan} ({target_name}). target.word translates source.word.\n",
+        "Each word has one part of speech, one short definition, and one example sentence, all in that word's own language.\n",
+        "source.synonyms and source.antonyms are other words in the source language.\n",
+        "Each target synonym and antonym has of: the source-language word it translates.\n",
+        "A target synonym's of is source.word or one source synonym. A target antonym's of is one source antonym.\n",
+        "At most 5 synonyms and 5 antonyms on each side.\n",
+        "Use a real translation. If you cannot, return empty strings and empty lists.",
+    ]
+    if known:
+        lines.insert(
+            2,
+            "These source words already exist. Copy them exactly and only fill the target side.\n"
+            f"Known head: {known['word']} ({known['pos']}).\n"
+            f"Known synonyms: {', '.join(known['synonyms']) or '(none)'}.\n"
+            f"Known antonyms: {', '.join(known['antonyms']) or '(none)'}.\n",
+        )
+    return "".join(lines)
 
 
 def _post(url, body, headers):
@@ -128,22 +98,73 @@ def _post(url, body, headers):
         raise ProviderDown("Could not load this card.") from exc
 
 
+_ENTRY = {
+    "type": "object",
+    "properties": {
+        "word": {"type": "string"},
+        "pos": {"type": "string"},
+        "definition": {"type": "string"},
+        "example": {"type": "string"},
+    },
+    "required": ["word", "pos", "definition", "example"],
+    "additionalProperties": False,
+}
+_LINKED = {
+    "type": "object",
+    "properties": {
+        "of": {"type": "string"},
+        "word": {"type": "string"},
+        "pos": {"type": "string"},
+        "definition": {"type": "string"},
+        "example": {"type": "string"},
+    },
+    "required": ["of", "word", "pos", "definition", "example"],
+    "additionalProperties": False,
+}
 CARD_SCHEMA = {
     "type": "object",
     "properties": {
-        "en": {"type": "string"},
-        "bn": {"type": "string"},
-        "pos": {"type": "array", "items": {"type": "string"}},
-        "synonyms": {"type": "array", "items": {"type": "string"}},
-        "antonyms": {"type": "array", "items": {"type": "string"}},
-        "examples": {"type": "array", "items": {"type": "string"}},
+        "source": {
+            "type": "object",
+            "properties": {
+                "lan": {"type": "string"},
+                "word": {"type": "string"},
+                "pos": {"type": "string"},
+                "definition": {"type": "string"},
+                "example": {"type": "string"},
+                "synonyms": {"type": "array", "items": _ENTRY},
+                "antonyms": {"type": "array", "items": _ENTRY},
+            },
+            "required": ["lan", "word", "pos", "definition", "example", "synonyms", "antonyms"],
+            "additionalProperties": False,
+        },
+        "target": {
+            "type": "object",
+            "properties": {
+                "lan": {"type": "string"},
+                "word": {"type": "string"},
+                "pos": {"type": "string"},
+                "definition": {"type": "string"},
+                "example": {"type": "string"},
+                "synonyms": {"type": "array", "items": _LINKED},
+                "antonyms": {"type": "array", "items": _LINKED},
+            },
+            "required": ["lan", "word", "pos", "definition", "example", "synonyms", "antonyms"],
+            "additionalProperties": False,
+        },
     },
-    "required": ["en", "bn", "pos", "synonyms", "antonyms", "examples"],
+    "required": ["source", "target"],
     "additionalProperties": False,
 }
+LANGUAGES = (
+    ("en", "English"),
+    ("bn", "Bangla"),
+    ("ar", "Arabic"),
+)
+LANGUAGE_NAMES = dict(LANGUAGES)
 
 
-def _generate_gemini(word, options):
+def _generate_gemini(prompt):
     api_key = settings.GEMINI_API_KEY
     if not api_key:
         raise ProviderDown("Card lookup is not configured.")
@@ -151,7 +172,7 @@ def _generate_gemini(word, options):
     payload = _post(
         f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
         {
-            "contents": [{"role": "user", "parts": [{"text": _prompt(word, options)}]}],
+            "contents": [{"role": "user", "parts": [{"text": prompt}]}],
             "generationConfig": {
                 "temperature": 0.4,
                 "responseMimeType": "application/json",
@@ -166,7 +187,7 @@ def _generate_gemini(word, options):
         raise ProviderDown("Could not load this card.") from exc
 
 
-def _generate_openai(word, options):
+def _generate_openai(prompt):
     api_key = settings.OPENAI_API_KEY
     if not api_key:
         raise ProviderDown("Card lookup is not configured.")
@@ -175,7 +196,7 @@ def _generate_openai(word, options):
         {
             "model": settings.OPENAI_MODEL,
             "temperature": 0.4,
-            "messages": [{"role": "user", "content": _prompt(word, options)}],
+            "messages": [{"role": "user", "content": prompt}],
             "response_format": {
                 "type": "json_schema",
                 "json_schema": {
@@ -200,7 +221,7 @@ def _available_providers():
     return [name for name in ordered if keys[name]]
 
 
-def _generate(word, options):
+def generate_graph(prompt):
     global _active
     available = _available_providers()
     if not available:
@@ -212,7 +233,7 @@ def _generate(word, options):
     last = None
     for name in ordered:
         try:
-            payload = generators[name](word, options)
+            payload = generators[name](prompt)
         except ProviderDown as exc:
             last = exc
             continue
@@ -223,7 +244,6 @@ def _generate(word, options):
 
 
 def lookup_card(word, options):
-    word = " ".join(word.split())
-    if not word:
-        return None
-    return present_card(word, _generate(word, options), options)
+    from .words import lookup_word
+
+    return lookup_word(word, options)
